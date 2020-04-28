@@ -5,7 +5,7 @@ import {
 } from "react-navigation-stack";
 import { fromLeft, zoomIn, zoomOut } from "react-navigation-transitions";
 import AppHome from "../Pages/AppHome";
-import SignUp from "../Pages/SignUp";
+import SignUp from "../Components/SignUp";
 
 const handleCustomTransition = ({ scenes }) => {
   const prevScene = scenes[scenes.length - 2];
@@ -29,13 +29,13 @@ const StackNavigator = createStackNavigator(
     AppHome: {
       screen: AppHome,
     },
-    SignUp: {
-      screen: SignUp,
-      navigationOptions: {
-        ...TransitionPresets.SlideFromRightIOS,
-        gestureDirection: "horizontal-inverted",
-      },
-    },
+    // SignUp: {
+    //   screen: SignUp,
+    //   navigationOptions: {
+    //     ...TransitionPresets.SlideFromRightIOS,
+    //     gestureDirection: "horizontal-inverted",
+    //   },
+    // },
   },
   {
     initialRouteName: "AppHome",
