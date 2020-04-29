@@ -5,8 +5,11 @@ import {
   Image,
   TouchableOpacity,
   Animated,
+  Dimensions,
 } from "react-native";
 import { Text } from "react-native-paper";
+
+const screenHeight = Math.round(Dimensions.get("window").height);
 
 export default class HomeContent extends React.Component {
   render() {
@@ -16,19 +19,22 @@ export default class HomeContent extends React.Component {
           <Text style={styles.text}>Can't settle on a place to eat?</Text>
           <Text style={styles.text}>Let us decide for you.</Text>
         </View>
-        <View style={{ marginTop: "35%" }} />
+        <View style={{ marginTop: screenHeight * 0.235 }} />
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            this.props.goToSignUp(true);
-            console.log("hello");
-            //this.props.navigation.navigate("SignUp")}
+            this.props.goToSignUp();
           }}
         >
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
         <View style={{ marginTop: "5%" }} />
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            this.props.goToSignIn();
+          }}
+        >
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
       </View>
@@ -38,8 +44,8 @@ export default class HomeContent extends React.Component {
 
 const styles = StyleSheet.create({
   textContainer: {
-    //marginTop: "10%",
-    height: "30%",
+    marginTop: screenHeight * 0.25,
+    // height: "30%",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -56,7 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   },
   button: {
-    height: "10%",
+    height: "5%",
     width: "85%",
     textAlign: "center",
     backgroundColor: "#FF6B00",
@@ -75,7 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
-    height: "100%",
-    width: "100%",
+    height: screenHeight,
+    // width: "100%",
   },
 });

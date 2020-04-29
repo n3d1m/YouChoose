@@ -7,6 +7,7 @@ import {
   TextInput,
   Keyboard,
   TouchableWithoutFeedback,
+  Dimensions,
 } from "react-native";
 import { Text } from "react-native-paper";
 import logo from "../static/logo.png";
@@ -16,6 +17,8 @@ import {
   AntDesign,
   Ionicons,
 } from "@expo/vector-icons";
+
+const screenHeight = Math.round(Dimensions.get("window").height);
 
 export default class SignUp extends React.Component {
   constructor(props) {
@@ -79,7 +82,7 @@ export default class SignUp extends React.Component {
               />
             )}
           </View>
-          <View style={{ marginTop: "50%" }} />
+          <View style={{ marginTop: screenHeight * 0.2 }} />
           <TouchableOpacity style={styles.button}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
@@ -91,8 +94,9 @@ export default class SignUp extends React.Component {
                 justifyContent: "center",
                 alignItems: "center",
               }}
+              onPress={() => this.props.goToSignIn()}
             >
-              <Text style={styles.loginText}>Log in</Text>
+              <Text style={styles.loginText}>Log In</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -118,7 +122,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: "85%",
-    height: "10%",
+    height: "5%",
     backgroundColor: "white",
     borderColor: "white",
     borderRadius: 10,
@@ -135,7 +139,7 @@ const styles = StyleSheet.create({
     paddingLeft: 7.5,
   },
   button: {
-    height: "10%",
+    height: "5%",
     width: "85%",
     textAlign: "center",
     backgroundColor: "#FF6B00",
@@ -151,7 +155,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     position: "absolute",
-    bottom: "0%",
+    top: screenHeight * 0.44,
   },
   bottomText: {
     color: "white",
@@ -169,9 +173,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
-    // height: 1000,
-    // height: "100%",
-    // width: "100%",
-    //marginTop: "50%",
+    height: screenHeight,
   },
 });
