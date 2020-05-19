@@ -8,6 +8,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { Text } from "react-native-paper";
 import logo from "../static/logo.png";
@@ -17,8 +18,10 @@ import {
   AntDesign,
   Ionicons,
 } from "@expo/vector-icons";
+import axios from "axios";
 
 import * as EmailValidator from "email-validator";
+var passwordValidator = require("password-validator");
 
 const screenHeight = Math.round(Dimensions.get("window").height);
 
@@ -28,24 +31,73 @@ export default class SignUp extends React.Component {
     this.state = {
       hidePass: true,
       fullName: "Ned",
-      email: "",
-      password: "",
+      email: "nedimhodzic42@gmail.com",
+      password: "T3stt123",
       error: false,
       errorMessage: "",
+      spinner: false,
     };
   }
 
   resetErrors = () => {
-    this.setState({ error: false, errorMessage: "" });
+    this.setState({ error: false, errorMessage: "", spinner: true });
   };
 
-  handleSignUp = () => {
+  passwordCheck = (password) => {
+    var schema = new passwordValidator();
+
+    schema
+      .is()
+      .min(8)
+      .is()
+      .max(50)
+      .has()
+      .uppercase()
+      .has()
+      .lowercase()
+      .has()
+      .digits();
+
+    return schema.validate(password);
+  };
+
+  handleSignUp = async () => {
     this.resetErrors();
 
     if (this.state.fullName.length < 1) {
-      this.setState({ error: true, errorMessage: "Invalid Full Name" });
+      this.setState({
+        error: true,
+        errorMessage: "Invalid Full Name",
+        spinner: false,
+      });
     } else if (EmailValidator.validate(this.state.email) == false) {
       this.setState({ error: true, errorMessage: "Invalid Email" });
+    } else if (this.passwordCheck(this.state.password) == false) {
+      this.setState({
+        spinner: false,
+        error: true,
+        errorMessage:
+          "Passwords must be at least 8 characters long, contain at least 1 uppercase and lowercase letter, and contain at least 1 digit.",
+      });
+    } else {
+      const res = axios.post("http://63c5abe0.ngrok.io/signup", {
+        full_name: this.state.fullName,
+        email: this.state.email,
+        password: this.state.password,
+      });
+
+      const response = await res;
+      var returnStatement = response.data.response;
+
+      console.log(returnStatement);
+
+      if (returnStatement == "An account with this email already exists") {
+        this.setState({
+          error: true,
+          errorMessage: returnStatement,
+          spinner: false,
+        });
+      }
     }
   };
 
@@ -76,6 +128,7 @@ export default class SignUp extends React.Component {
               placeholder="Email"
               placeholderTextColor="#002A57"
               onChangeText={(text) => this.setState({ email: text })}
+              value={this.state.email}
             />
           </View>
           <View style={{ marginTop: "3%" }} />
@@ -86,6 +139,7 @@ export default class SignUp extends React.Component {
               placeholder="Password"
               placeholderTextColor="#002A57"
               secureTextEntry={this.state.hidePass}
+              value={this.state.password}
             />
             {this.state.hidePass ? (
               <Ionicons
@@ -115,27 +169,42 @@ export default class SignUp extends React.Component {
             </View>
           ) : null}
           <View style={{ marginTop: screenHeight * 0.2 }} />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              this.handleSignUp();
-            }}
-          >
-            <Text style={styles.buttonText}>Sign Up</Text>
-          </TouchableOpacity>
-          <View style={styles.bottomContainer}>
-            <Text style={styles.bottomText}>Already have an account?</Text>
-            <TouchableOpacity
+
+          {this.state.spinner ? (
+            <ActivityIndicator size="large" color="white" />
+          ) : (
+            <View
               style={{
-                marginTop: "3%",
-                justifyContent: "center",
+                width: "100%",
+                // height: screenHeight,
+                justifyContent: "flex-start",
                 alignItems: "center",
+                flex: 1,
               }}
-              onPress={() => this.props.goToSignIn()}
             >
-              <Text style={styles.loginText}>Log In</Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  this.handleSignUp();
+                }}
+              >
+                <Text style={styles.buttonText}>Sign Up</Text>
+              </TouchableOpacity>
+              <View style={styles.bottomContainer}>
+                <Text style={styles.bottomText}>Already have an account?</Text>
+                <TouchableOpacity
+                  style={{
+                    marginTop: "3%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  onPress={() => this.props.goToSignIn()}
+                >
+                  <Text style={styles.loginText}>Log In</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </TouchableWithoutFeedback>
     );
@@ -176,7 +245,7 @@ const styles = StyleSheet.create({
     paddingLeft: 7.5,
   },
   button: {
-    height: "5%",
+    height: screenHeight * 0.05,
     width: "85%",
     textAlign: "center",
     backgroundColor: "#FF6B00",
@@ -192,7 +261,7 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     position: "absolute",
-    top: screenHeight * 0.44,
+    top: screenHeight * 0.065,
   },
   bottomText: {
     color: "white",
@@ -216,9 +285,11 @@ const styles = StyleSheet.create({
     color: "red",
     fontFamily: "AvenirNext-Regular",
     fontSize: 14,
+    textAlign: "center",
   },
   errorBox: {
     position: "absolute",
     marginTop: screenHeight * 0.18,
+    width: "85%",
   },
 });
