@@ -18,15 +18,39 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 
+import * as EmailValidator from "email-validator";
+
 const screenHeight = Math.round(Dimensions.get("window").height);
 
 export default class SignUp extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hidePass: true };
+    this.state = {
+      hidePass: true,
+      fullName: "Ned",
+      email: "",
+      password: "",
+      error: false,
+      errorMessage: "",
+    };
   }
 
+  resetErrors = () => {
+    this.setState({ error: false, errorMessage: "" });
+  };
+
+  handleSignUp = () => {
+    this.resetErrors();
+
+    if (this.state.fullName.length < 1) {
+      this.setState({ error: true, errorMessage: "Invalid Full Name" });
+    } else if (EmailValidator.validate(this.state.email) == false) {
+      this.setState({ error: true, errorMessage: "Invalid Email" });
+    }
+  };
+
   render() {
+    console.log(this.state.error);
     return (
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View style={styles.contentContainer}>
@@ -36,6 +60,8 @@ export default class SignUp extends React.Component {
               style={styles.input}
               placeholder="Full Name"
               placeholderTextColor="#002A57"
+              value={this.state.fullName}
+              onChangeText={(text) => this.setState({ fullName: text })}
             />
           </View>
           <View style={{ marginTop: "3%" }} />
@@ -49,6 +75,7 @@ export default class SignUp extends React.Component {
               style={styles.input}
               placeholder="Email"
               placeholderTextColor="#002A57"
+              onChangeText={(text) => this.setState({ email: text })}
             />
           </View>
           <View style={{ marginTop: "3%" }} />
@@ -82,8 +109,18 @@ export default class SignUp extends React.Component {
               />
             )}
           </View>
+          {this.state.error ? (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{this.state.errorMessage}</Text>
+            </View>
+          ) : null}
           <View style={{ marginTop: screenHeight * 0.2 }} />
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              this.handleSignUp();
+            }}
+          >
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
           <View style={styles.bottomContainer}>
@@ -122,7 +159,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: "85%",
-    height: "5%",
+    height: screenHeight * 0.05,
     backgroundColor: "white",
     borderColor: "white",
     borderRadius: 10,
@@ -174,5 +211,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
     height: screenHeight,
+  },
+  errorText: {
+    color: "red",
+    fontFamily: "AvenirNext-Regular",
+    fontSize: 14,
+  },
+  errorBox: {
+    position: "absolute",
+    marginTop: screenHeight * 0.18,
   },
 });

@@ -1,46 +1,48 @@
-import { createAppContainer } from "react-navigation";
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from "react-navigation-stack";
-import { fromLeft, zoomIn, zoomOut } from "react-navigation-transitions";
+import * as React from "react";
+import { View, Text } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+
 import AppHome from "../Pages/AppHome";
-import Forgot from "../Components/Forgot";
+import Main from "../Pages/Main";
 
-const handleCustomTransition = ({ scenes }) => {
-  const prevScene = scenes[scenes.length - 2];
-  const nextScene = scenes[scenes.length - 1];
-
-  // Custom transitions go there
-  // if (prevScene
-  //   && prevScene.route.routeName === 'ScreenA'
-  //   && nextScene.route.routeName === 'ScreenB') {
-  //   return zoomIn();
-  // } else if (prevScene
-  //   && prevScene.route.routeName === 'ScreenB'
-  //   && nextScene.route.routeName === 'ScreenC') {
-  //   return zoomOut();
-  // }
-  return fromLeft();
+const stackOptions = {
+  headerMode: "none",
+  transparentCard: true,
 };
 
-const StackNavigator = createStackNavigator(
-  {
-    AppHome: {
-      screen: AppHome,
-    },
-    // Forgot: {
-    //   screen: Forgot,
-    //   navigationOptions: {
-    //     ...TransitionPresets.SlideFromRightIOS,
-    //     gestureDirection: "horizontal-inverted",
-    //   },
-    // },
-  },
-  {
-    initialRouteName: "AppHome",
-    headerMode: "none",
-  }
-);
+const Stack = createStackNavigator();
 
-export default createAppContainer(StackNavigator);
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="AppHome"
+        headerMode="none"
+        screenOptions={{ transparentCard: true }}
+      >
+        <Stack.Screen name="AppHome" component={AppHome} />
+        <Stack.Screen name="Main" component={Main} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+//   {
+//     AppHome: {
+//       screen: AppHome,
+//     },
+//     // Forgot: {
+//     //   screen: Forgot,
+//     //   navigationOptions: {
+//     //     ...TransitionPresets.SlideFromRightIOS,
+//     //     gestureDirection: "horizontal-inverted",
+//     //   },
+//     // },
+//   },
+//   {
+//     initialRouteName: "AppHome",
+//     headerMode: "none",
+//   }
+// );
+
+export default App;
