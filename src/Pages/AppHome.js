@@ -71,6 +71,11 @@ export default class AppHome extends React.Component {
     var history = { prev: "", current: "Home" };
   };
 
+  goToMain = () => {
+    const { navigate } = this.props.navigation;
+    navigate("Main");
+  };
+
   render() {
     return (
       <View style={styles.background}>
@@ -160,7 +165,11 @@ export default class AppHome extends React.Component {
           }
           swipeThreshold={75}
         >
-          <SignIn goToSignUp={this.goToSignUp} goToForgot={this.goToForgot} />
+          <SignIn
+            goToSignUp={this.goToSignUp}
+            goToForgot={this.goToForgot}
+            goToMain={this.props.goToMain}
+          />
         </Modal>
         <Modal
           isVisible={this.state.forgotPassword}

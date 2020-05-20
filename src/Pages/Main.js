@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   TextInput,
+  Text,
 } from "react-native";
 
 export default class Main extends React.Component {

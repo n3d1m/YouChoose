@@ -80,7 +80,7 @@ export default class SignUp extends React.Component {
           "Passwords must be at least 8 characters long, contain at least 1 uppercase and lowercase letter, and contain at least 1 digit.",
       });
     } else {
-      const res = axios.post("http://63c5abe0.ngrok.io/signup", {
+      const res = axios.post("https://cinis.serveo.net/signup", {
         full_name: this.state.fullName,
         email: this.state.email,
         password: this.state.password,
@@ -163,11 +163,11 @@ export default class SignUp extends React.Component {
               />
             )}
           </View>
-          {this.state.error ? (
+          {this.state.error && (
             <View style={styles.errorBox}>
               <Text style={styles.errorText}>{this.state.errorMessage}</Text>
             </View>
-          ) : null}
+          )}
           <View style={{ marginTop: screenHeight * 0.2 }} />
 
           {this.state.spinner ? (
@@ -176,7 +176,6 @@ export default class SignUp extends React.Component {
             <View
               style={{
                 width: "100%",
-                // height: screenHeight,
                 justifyContent: "flex-start",
                 alignItems: "center",
                 flex: 1,
