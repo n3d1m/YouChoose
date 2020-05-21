@@ -97,7 +97,30 @@ export default class SignUp extends React.Component {
           errorMessage: returnStatement,
           spinner: false,
         });
+      } else if (returnStatement == "Success") {
+        this.signIn();
       }
+    }
+  };
+
+  signIn = async () => {
+    const res = axios.post("https://cinis.serveo.net/login", {
+      email: this.state.email,
+      password: this.state.password,
+    });
+    const response = await res;
+    var returnStatement = response.data;
+
+    console.log(returnStatement);
+
+    if (returnStatement.ok == false) {
+      this.setState({
+        error: true,
+        errorMessage: returnStatement.response,
+        spinner: false,
+      });
+    } else {
+      this.props.goToMain();
     }
   };
 

@@ -30,7 +30,7 @@ export default class extends React.Component {
     this.state = {
       hidePass: true,
       email: "nedimhodzic42@gmail.com",
-      password: "test",
+      password: "T3stt123",
       error: false,
       errorMessage: "",
       spinner: false,

@@ -141,7 +141,7 @@ export default class AppHome extends React.Component {
           }
           swipeThreshold={75}
         >
-          <SignUp goToSignIn={this.goToSignIn} />
+          <SignUp goToSignIn={this.goToSignIn} goToMain={this.props.goToMain} />
         </Modal>
         <Modal
           isVisible={this.state.signIn}
