@@ -11,9 +11,12 @@ import {
   TextInput,
   Text,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import * as Location from "expo-location";
+import axios from "axios";
 
 StatusBar.setBarStyle("dark-content", true);
 
@@ -23,7 +26,7 @@ export default class TabHome extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentLocation: "Waterloo, ON",
+      currentLocation: "",
       filters: {
         Category: {
           iconName: "md-grid",
@@ -42,7 +45,46 @@ export default class TabHome extends React.Component {
           set: "MaterialIcons",
         },
       },
+      locationPermission: null,
+      locationObj: null,
+      latLong: null,
+      spinner: true,
     };
+  }
+
+  getLocation = async () => {
+    let statusObj = await Location.requestPermissionsAsync();
+
+    if (statusObj["status"] !== "granted") {
+      this.setState({
+        locationPermission: false,
+        currentLocation: "Select a Location",
+        spinner: false,
+      });
+    } else {
+      let location = await Location.getCurrentPositionAsync();
+      let latLong = {
+        latitude: location["coords"]["latitude"],
+        longitude: location["coords"]["longitude"],
+      };
+      let reverseGeocode = await Location.reverseGeocodeAsync(latLong);
+
+      this.setState({
+        locationPermission: true,
+        locationObj: reverseGeocode[0],
+        currentLocation: `${reverseGeocode[0]["city"]}, ${reverseGeocode[0]["region"]}`,
+        spinner: false,
+        latLong: latLong,
+      });
+    }
+  };
+
+  randomSelection = () => {
+    console.log(this.state.latLong);
+  };
+
+  componentDidMount() {
+    this.getLocation();
   }
 
   topBar = () => {
@@ -88,13 +130,22 @@ export default class TabHome extends React.Component {
       <View style={styles.main}>
         {this.topBar()}
         <View style={styles.mainCol}>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Filtered Selection</Text>
-          </TouchableOpacity>
-          <View style={{ marginTop: screenHeight * 0.05 }} />
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Random Selection</Text>
-          </TouchableOpacity>
+          {this.state.spinner ? (
+            <ActivityIndicator size="large" color="white" />
+          ) : (
+            <View style={styles.mainCol}>
+              <TouchableOpacity style={styles.button}>
+                <Text style={styles.buttonText}>Filtered Selection</Text>
+              </TouchableOpacity>
+              <View style={{ marginTop: screenHeight * 0.05 }} />
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => this.randomSelection()}
+              >
+                <Text style={styles.buttonText}>Random Selection</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
     );
@@ -167,6 +218,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
     marginTop: "20%",
+    width: "100%",
   },
   button: {
     width: "70%",
