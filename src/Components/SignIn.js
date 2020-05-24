@@ -20,6 +20,7 @@ import {
 } from "@expo/vector-icons";
 import { withNavigation } from "react-navigation";
 import axios from "axios";
+import contactReducer from "../reducers/index";
 
 import * as EmailValidator from "email-validator";
 const screenHeight = Math.round(Dimensions.get("window").height);
@@ -74,6 +75,7 @@ export default class extends React.Component {
         });
       } else {
         console.log("fuck");
+        contactReducer(returnStatement, "HANDLE_AUTH");
         this.props.goToMain();
         //const { navigate } = this.props.navigation;
         //this.props.navigation.navigate("Main");

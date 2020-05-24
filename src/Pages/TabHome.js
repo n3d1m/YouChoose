@@ -17,6 +17,7 @@ import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import axios from "axios";
+import contactReducer from "../reducers/index";
 
 StatusBar.setBarStyle("dark-content", true);
 
@@ -85,6 +86,8 @@ export default class TabHome extends React.Component {
 
   componentDidMount() {
     this.getLocation();
+    const authData = contactReducer(null, "GET_AUTH");
+    console.log(authData);
   }
 
   topBar = () => {

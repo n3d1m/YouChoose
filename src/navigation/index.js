@@ -13,6 +13,8 @@ import Bottom from "../Components/Bottom";
 import AppHome from "../Pages/AppHome";
 import TabHome from "../Pages/TabHome";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Provider } from "react-redux";
+import store from "../store/index";
 
 const stackOptions = {
   headerMode: "none",
@@ -78,16 +80,18 @@ function Main() {
 
 function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="AppHome"
-        headerMode="none"
-        screenOptions={{ transparentCard: true }}
-      >
-        <Stack.Screen name="AppHome" component={HomePage} />
-        <Stack.Screen name="Main" component={Main} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="AppHome"
+          headerMode="none"
+          screenOptions={{ transparentCard: true }}
+        >
+          <Stack.Screen name="AppHome" component={HomePage} />
+          <Stack.Screen name="Main" component={Main} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }
 //   {
