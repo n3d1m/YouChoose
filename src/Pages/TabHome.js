@@ -19,7 +19,7 @@ import * as Location from "expo-location";
 import axios from "axios";
 import contactReducer from "../reducers/index";
 
-StatusBar.setBarStyle("dark-content", true);
+//StatusBar.setBarStyle("dark-content", true);
 
 const screenHeight = Math.round(Dimensions.get("window").height);
 
@@ -80,14 +80,38 @@ export default class TabHome extends React.Component {
     }
   };
 
-  randomSelection = () => {
+  randomSelection = async () => {
     console.log(this.state.latLong);
+    const authData = contactReducer(null, "GET_AUTH")["payload"];
+    console.log(authData);
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authData["access_token"]}`,
+    };
+
+    const data = {
+      lat: this.state.latLong["latitude"],
+      long: this.state.latLong["longitude"],
+    };
+
+    const res = axios.post(
+      "https://lucrum.serveo.net/random_selection",
+      data,
+      {
+        headers: headers,
+      }
+      //access_token
+    );
+
+    const response = await res;
+    const returnStatement = response.data.data;
+
+    console.log(returnStatement);
   };
 
   componentDidMount() {
     this.getLocation();
-    const authData = contactReducer(null, "GET_AUTH");
-    console.log(authData);
   }
 
   topBar = () => {
@@ -145,7 +169,14 @@ export default class TabHome extends React.Component {
                 style={styles.button}
                 onPress={() => this.randomSelection()}
               >
-                <Text style={styles.buttonText}>Random Selection</Text>
+                <Text
+                  style={styles.buttonText}
+                  onPress={() => {
+                    this.randomSelection();
+                  }}
+                >
+                  Random Selection
+                </Text>
               </TouchableOpacity>
             </View>
           )}

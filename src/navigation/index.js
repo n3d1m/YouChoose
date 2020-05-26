@@ -26,6 +26,7 @@ function BottomBar() {
 }
 
 function HomePage({ navigation }) {
+  StatusBar.setBarStyle("light-content", true);
   return <AppHome goToMain={() => navigation.navigate("Main")} />;
 }
 
@@ -37,6 +38,7 @@ const Tab = createBottomTabNavigator();
 // },
 
 function Main() {
+  StatusBar.setBarStyle("dark-content", true);
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({

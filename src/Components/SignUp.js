@@ -80,7 +80,7 @@ export default class SignUp extends React.Component {
           "Passwords must be at least 8 characters long, contain at least 1 uppercase and lowercase letter, and contain at least 1 digit.",
       });
     } else {
-      const res = axios.post("https://cinis.serveo.net/signup", {
+      const res = axios.post("https://lucrum.serveo.net/signup", {
         full_name: this.state.fullName,
         email: this.state.email,
         password: this.state.password,
@@ -104,7 +104,7 @@ export default class SignUp extends React.Component {
   };
 
   signIn = async () => {
-    const res = axios.post("https://cinis.serveo.net/login", {
+    const res = axios.post("https://lucrum.serveo.net/login", {
       email: this.state.email,
       password: this.state.password,
     });

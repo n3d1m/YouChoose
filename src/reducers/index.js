@@ -7,6 +7,7 @@ function rootReducer(uploadVal, action, state = initialState) {
         access_token: uploadVal["access_token"],
         email: uploadVal["email"],
         full_name: uploadVal["full_name"],
+        user_id: uploadVal["user_id"],
       };
       state["auth"] = authData;
       return {

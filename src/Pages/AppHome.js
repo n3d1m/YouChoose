@@ -8,6 +8,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Dimensions,
+  StatusBar,
 } from "react-native";
 import { Text } from "react-native-paper";
 import logo from "../static/logo.png";
