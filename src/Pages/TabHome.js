@@ -14,14 +14,16 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Entypo, Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import axios from "axios";
 import contactReducer from "../reducers/index";
+import AnimatedLoader from "react-native-animated-loader";
 
 //StatusBar.setBarStyle("dark-content", true);
 
 const screenHeight = Math.round(Dimensions.get("window").height);
+const screenWidth = Math.round(Dimensions.get("window").width);
 
 export default class TabHome extends React.Component {
   constructor(props) {
@@ -50,6 +52,10 @@ export default class TabHome extends React.Component {
       locationObj: null,
       latLong: null,
       spinner: true,
+      randomSelection: false,
+      popover: false,
+      placeData: null,
+      error: false,
     };
   }
 
@@ -81,7 +87,7 @@ export default class TabHome extends React.Component {
   };
 
   randomSelection = async () => {
-    console.log(this.state.latLong);
+    this.setState({ randomSelection: true });
     const authData = contactReducer(null, "GET_AUTH")["payload"];
     console.log(authData);
 
@@ -96,7 +102,7 @@ export default class TabHome extends React.Component {
     };
 
     const res = axios.post(
-      "https://lucrum.serveo.net/random_selection",
+      "https://parilis.serveo.net/random_selection",
       data,
       {
         headers: headers,
@@ -105,9 +111,28 @@ export default class TabHome extends React.Component {
     );
 
     const response = await res;
-    const returnStatement = response.data.data;
 
-    console.log(returnStatement);
+    //console.log(response.data);
+
+    if (response.data.ok != undefined) {
+      const returnStatement = response.data.data;
+
+      let error = false;
+      let placeData = null;
+
+      if (response.data.ok == true) {
+        // console.log(returnStatement);
+        placeData = returnStatement;
+      } else {
+        error = true;
+      }
+      this.setState({
+        randomSelection: false,
+        error: error,
+        popover: true,
+        placeData: placeData,
+      });
+    }
   };
 
   componentDidMount() {
@@ -152,6 +177,31 @@ export default class TabHome extends React.Component {
     );
   };
 
+  popover = () => {
+    console.log(this.state.placeData["image_url"]);
+    return (
+      <View style={styles.popover}>
+        <View style={styles.popoverHeaderRow}>
+          <View style={{ width: RFValue(15) }} />
+          <Text style={styles.popoverText}>Your Selection:</Text>
+          <AntDesign
+            name="close"
+            color="#002A57"
+            size={RFValue(15)}
+            style={{ marginLeft: -10, marginTop: -10 }}
+            onPress={() => this.setState({ popover: false })}
+          />
+        </View>
+        <View style={styles.contentRow}>
+          <Image
+            source={{ uri: this.state.placeData["image_url"] }}
+            style={styles.image}
+          />
+        </View>
+      </View>
+    );
+  };
+
   render() {
     return (
       <View style={styles.main}>
@@ -159,6 +209,16 @@ export default class TabHome extends React.Component {
         <View style={styles.mainCol}>
           {this.state.spinner ? (
             <ActivityIndicator size="large" color="white" />
+          ) : this.state.randomSelection ? (
+            <AnimatedLoader
+              visible={this.state.randomSelection}
+              overlayColor="rgba(255,255,255,0)"
+              source={require("../Animations/load.json")}
+              animationStyle={styles.customSpinner}
+              speed={1}
+            />
+          ) : this.state.popover ? (
+            this.popover()
           ) : (
             <View style={styles.mainCol}>
               <TouchableOpacity style={styles.button}>
@@ -267,5 +327,41 @@ const styles = StyleSheet.create({
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
     fontWeight: "bold",
+  },
+  customSpinner: {
+    width: RFValue(125),
+    height: RFValue(125),
+  },
+  popover: {
+    height: screenHeight * 0.4,
+    width: screenWidth * 0.85,
+    backgroundColor: "white",
+    borderRadius: 10,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  popoverText: {
+    fontSize: RFValue(18),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    fontWeight: "bold",
+  },
+  popoverHeaderRow: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+    width: "100%",
+  },
+  contentRow: {
+    justifyContent: "space-around",
+    alignItems: "center",
+    flexDirection: "row",
+    width: "100%",
+  },
+  image: {
+    height: screenHeight * 0.15,
+    width: screenWidth * 0.4,
+    resizeMode: "cover",
+    borderRadius: (screenHeight * 0.15) / 4,
   },
 });

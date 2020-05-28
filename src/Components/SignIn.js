@@ -58,7 +58,7 @@ export default class extends React.Component {
         spinner: false,
       });
     } else {
-      const res = axios.post("https://lucrum.serveo.net/login", {
+      const res = axios.post("https://parilis.serveo.net/login", {
         email: this.state.email,
         password: this.state.password,
       });
