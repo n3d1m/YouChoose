@@ -19,6 +19,8 @@ import * as Location from "expo-location";
 import axios from "axios";
 import contactReducer from "../reducers/index";
 import AnimatedLoader from "react-native-animated-loader";
+import { Rating } from "react-native-ratings";
+import { getDistance } from "geolib";
 
 //StatusBar.setBarStyle("dark-content", true);
 
@@ -29,6 +31,7 @@ export default class TabHome extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      currentApi: contactReducer(null, "GET_API")["api"],
       currentLocation: "",
       filters: {
         Category: {
@@ -87,7 +90,7 @@ export default class TabHome extends React.Component {
   };
 
   randomSelection = async () => {
-    this.setState({ randomSelection: true });
+    this.setState({ randomSelection: true, popover: false });
     const authData = contactReducer(null, "GET_AUTH")["payload"];
     console.log(authData);
 
@@ -102,7 +105,7 @@ export default class TabHome extends React.Component {
     };
 
     const res = axios.post(
-      "https://parilis.serveo.net/random_selection",
+      this.state.currentApi + "/random_selection",
       data,
       {
         headers: headers,
@@ -137,6 +140,18 @@ export default class TabHome extends React.Component {
 
   componentDidMount() {
     this.getLocation();
+  }
+
+  getDistance(placeGeometry) {
+    const distance = getDistance(
+      {
+        latitude: this.state.latLong["latitude"],
+        longitude: this.state.latLong["longitude"],
+      },
+      { latitude: placeGeometry["lat"], longitude: placeGeometry["lng"] }
+    );
+
+    return (distance / 1000).toFixed(2);
   }
 
   topBar = () => {
@@ -178,7 +193,14 @@ export default class TabHome extends React.Component {
   };
 
   popover = () => {
-    console.log(this.state.placeData["image_url"]);
+    console.log(this.state.placeData);
+    const priceMap = {
+      1: "$",
+      2: "$$",
+      3: "$$$",
+      4: "$$$$",
+      5: "$$$$$",
+    };
     return (
       <View style={styles.popover}>
         <View style={styles.popoverHeaderRow}>
@@ -188,7 +210,7 @@ export default class TabHome extends React.Component {
             name="close"
             color="#002A57"
             size={RFValue(15)}
-            style={{ marginLeft: -10, marginTop: -10 }}
+            style={{ marginLeft: -10, marginTop: -5 }}
             onPress={() => this.setState({ popover: false })}
           />
         </View>
@@ -197,6 +219,43 @@ export default class TabHome extends React.Component {
             source={{ uri: this.state.placeData["image_url"] }}
             style={styles.image}
           />
+          <View style={styles.contentCol}>
+            <Text style={styles.contentText}>
+              {this.state.placeData["name"]}
+            </Text>
+            <Text style={styles.contentText}>
+              {this.state.placeData["vicinity"].split(",")[0]}
+            </Text>
+            <View style={styles.infoRow}>
+              <Rating
+                ratingColor="#FF6B00"
+                type="custom"
+                imageSize={RFValue(10)}
+                startingValue={this.state.placeData["rating"]}
+                readonly={true}
+              />
+              <Text style={styles.infoText}>
+                |{"  "}
+                {priceMap[this.state.placeData["price_level"]]}
+                {"  "}|{"  "}
+                {this.getDistance(
+                  this.state.placeData["geometry"]["location"]
+                )}{" "}
+                km away
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.smallButton}>
+            <Text style={styles.smallButtonText}>Satisfied?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.smallButton}
+            onPress={() => this.randomSelection()}
+          >
+            <Text style={styles.smallButtonText}>Try Again</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -333,15 +392,15 @@ const styles = StyleSheet.create({
     height: RFValue(125),
   },
   popover: {
-    height: screenHeight * 0.4,
-    width: screenWidth * 0.85,
+    height: screenHeight * 0.35,
+    width: screenWidth * 0.9,
     backgroundColor: "white",
     borderRadius: 10,
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   popoverText: {
-    fontSize: RFValue(18),
+    fontSize: RFValue(16),
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
     fontWeight: "bold",
@@ -353,15 +412,64 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   contentRow: {
-    justifyContent: "space-around",
+    justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
     width: "100%",
+    marginTop: screenHeight * 0.05,
   },
   image: {
-    height: screenHeight * 0.15,
-    width: screenWidth * 0.4,
+    height: screenHeight * 0.13,
+    width: screenWidth * 0.375,
     resizeMode: "cover",
     borderRadius: (screenHeight * 0.15) / 4,
+  },
+  contentCol: {
+    justifyContent: "center",
+    alignItems: "flex-start",
+    flexDirection: "column",
+    width: screenWidth * 0.45,
+    marginLeft: 10,
+    marginTop: -5,
+  },
+  contentText: {
+    fontSize: RFValue(10),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    marginTop: 5,
+  },
+  infoRow: {
+    width: screenWidth * 0.45,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "row",
+    marginTop: 5,
+  },
+  infoText: {
+    fontSize: RFValue(10),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    marginLeft: 5,
+  },
+  buttonRow: {
+    width: screenWidth * 0.9,
+    marginTop: screenHeight * 0.04,
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  smallButton: {
+    width: screenWidth * 0.3,
+    height: screenHeight * 0.05,
+    backgroundColor: "#FF6B00",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  smallButtonText: {
+    fontSize: RFValue(12),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    fontWeight: "bold",
   },
 });

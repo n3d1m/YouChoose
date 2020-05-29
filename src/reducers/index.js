@@ -1,4 +1,7 @@
-const initialState = { auth: null };
+const initialState = {
+  auth: null,
+  currentApi: "https://2714dc68e5d2.ngrok.io",
+};
 
 function rootReducer(uploadVal, action, state = initialState) {
   switch (action) {
@@ -19,6 +22,10 @@ function rootReducer(uploadVal, action, state = initialState) {
       return {
         payload,
       };
+
+    case "GET_API":
+      const api = state["currentApi"];
+      return { api };
   }
 }
 

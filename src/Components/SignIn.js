@@ -35,6 +35,7 @@ export default class extends React.Component {
       error: false,
       errorMessage: "",
       spinner: false,
+      currentApi: contactReducer(null, "GET_API")["api"],
     };
   }
 
@@ -44,6 +45,8 @@ export default class extends React.Component {
 
   handleSignIn = async () => {
     this.resetErrors();
+
+    console.log(this.state.currentApi);
 
     if (EmailValidator.validate(this.state.email) == false) {
       this.setState({
@@ -58,7 +61,7 @@ export default class extends React.Component {
         spinner: false,
       });
     } else {
-      const res = axios.post("https://parilis.serveo.net/login", {
+      const res = axios.post(this.state.currentApi + "/login", {
         email: this.state.email,
         password: this.state.password,
       });

@@ -19,6 +19,7 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import axios from "axios";
+import contactReducer from "../reducers/index";
 
 import * as EmailValidator from "email-validator";
 var passwordValidator = require("password-validator");
@@ -36,6 +37,7 @@ export default class SignUp extends React.Component {
       error: false,
       errorMessage: "",
       spinner: false,
+      currentApi: contactReducer(null, "GET_API")["api"],
     };
   }
 
