@@ -216,6 +216,7 @@ export default class TabHome extends React.Component {
         </View>
         <View style={styles.contentRow}>
           <Image
+            //source={{ uri: "https://logo.clearbit.com/spotify.com" }}
             source={{ uri: this.state.placeData["image_url"] }}
             style={styles.image}
           />
@@ -224,7 +225,7 @@ export default class TabHome extends React.Component {
               {this.state.placeData["name"]}
             </Text>
             <Text style={styles.contentText}>
-              {this.state.placeData["vicinity"].split(",")[0]}
+              {this.state.placeData["address"]}
             </Text>
             <View style={styles.infoRow}>
               <Rating
@@ -288,14 +289,7 @@ export default class TabHome extends React.Component {
                 style={styles.button}
                 onPress={() => this.randomSelection()}
               >
-                <Text
-                  style={styles.buttonText}
-                  onPress={() => {
-                    this.randomSelection();
-                  }}
-                >
-                  Random Selection
-                </Text>
+                <Text style={styles.buttonText}>Random Selection</Text>
               </TouchableOpacity>
             </View>
           )}
