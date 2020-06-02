@@ -1,6 +1,6 @@
 const initialState = {
   auth: null,
-  currentApi: "https://444b4fab78a5.ngrok.io",
+  currentApi: "https://f270a5a14bb9.ngrok.io",
 };
 
 function rootReducer(uploadVal, action, state = initialState) {

@@ -59,6 +59,7 @@ export default class TabHome extends React.Component {
       popover: false,
       placeData: null,
       error: false,
+      logo: null,
     };
   }
 
@@ -90,7 +91,7 @@ export default class TabHome extends React.Component {
   };
 
   randomSelection = async () => {
-    this.setState({ randomSelection: true, popover: false });
+    this.setState({ randomSelection: true, popover: false, logo: null });
     const authData = contactReducer(null, "GET_AUTH")["payload"];
     console.log(authData);
 
@@ -129,6 +130,7 @@ export default class TabHome extends React.Component {
       } else {
         error = true;
       }
+      this.getLogo(placeData["logo_url"]);
       this.setState({
         randomSelection: false,
         error: error,
@@ -153,6 +155,26 @@ export default class TabHome extends React.Component {
 
     return (distance / 1000).toFixed(2);
   }
+
+  getLogo = (logo) => {
+    console.log(logo);
+    axios
+      .get(`https://logo.clearbit.com/${logo}?size=100`)
+      .then((response) => {
+        console.log("response: " + response["request"]["responseURL"]);
+        this.setState({ logo: response["request"]["responseURL"] });
+      })
+      .catch((e) => this.setState({ logo: null }));
+    // let data
+    // try {
+    //   data = await getCall;
+    //   //console.log(response["request"]);
+    //   //return response["request"]["responseURL"];
+    // } catch (error) {
+    //   //console.log(error);
+    //   data = null
+    // }
+  };
 
   topBar = () => {
     var filterState = this.state.filters;
@@ -193,7 +215,7 @@ export default class TabHome extends React.Component {
   };
 
   popover = () => {
-    console.log(this.state.placeData);
+    //console.log(this.state.placeData);
     const priceMap = {
       1: "$",
       2: "$$",
@@ -201,8 +223,10 @@ export default class TabHome extends React.Component {
       4: "$$$$",
       5: "$$$$$",
     };
+
     return (
       <View style={styles.popover}>
+        {console.log(this.state.logo)}
         <View style={styles.popoverHeaderRow}>
           <View style={{ width: RFValue(15) }} />
           <Text style={styles.popoverText}>Your Selection:</Text>
@@ -216,8 +240,14 @@ export default class TabHome extends React.Component {
         </View>
         <View style={styles.contentRow}>
           <Image
+            source={{
+              uri:
+                this.state.logo == null
+                  ? this.state.placeData["image_url"]
+                  : this.state.logo,
+            }}
             //source={{ uri: "https://logo.clearbit.com/spotify.com" }}
-            source={{ uri: this.state.placeData["image_url"] }}
+            //source={{ uri: this.state.placeData["image_url"] }}
             style={styles.image}
           />
           <View style={styles.contentCol}>
@@ -415,7 +445,7 @@ const styles = StyleSheet.create({
   image: {
     height: screenHeight * 0.13,
     width: screenWidth * 0.375,
-    resizeMode: "cover",
+    resizeMode: "contain",
     borderRadius: (screenHeight * 0.15) / 4,
   },
   contentCol: {
