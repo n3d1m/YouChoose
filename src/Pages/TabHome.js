@@ -21,6 +21,9 @@ import contactReducer from "../reducers/index";
 import AnimatedLoader from "react-native-animated-loader";
 import { Rating } from "react-native-ratings";
 import { getDistance } from "geolib";
+import SlidingUpPanel from "rn-sliding-up-panel";
+
+import SlidingPanelContents from "../Components/SlidingPanelContents";
 
 //StatusBar.setBarStyle("dark-content", true);
 
@@ -125,7 +128,7 @@ export default class TabHome extends React.Component {
       let placeData = null;
 
       if (response.data.ok == true) {
-        // console.log(returnStatement);
+        console.log(returnStatement);
         placeData = returnStatement;
       } else {
         error = true;
@@ -278,8 +281,11 @@ export default class TabHome extends React.Component {
           </View>
         </View>
         <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.smallButton}>
-            <Text style={styles.smallButtonText}>Satisfied?</Text>
+          <TouchableOpacity
+            style={styles.smallButton}
+            onPress={() => this._panel.show()}
+          >
+            <Text style={styles.smallButtonText}>More Details</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.smallButton}
@@ -324,6 +330,13 @@ export default class TabHome extends React.Component {
             </View>
           )}
         </View>
+        <SlidingUpPanel
+          ref={(node) => (this._panel = node)}
+          height={screenHeight * 0.6}
+          draggableRange={{ top: screenHeight * 0.6, bottom: 0 }}
+        >
+          <SlidingPanelContents />
+        </SlidingUpPanel>
       </View>
     );
   }
