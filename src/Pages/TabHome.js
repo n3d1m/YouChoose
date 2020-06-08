@@ -134,6 +134,8 @@ export default class TabHome extends React.Component {
         error = true;
       }
       this.getLogo(placeData["logo_url"]);
+      contactReducer(placeData, "UPDATE_PLACE_DATA");
+
       this.setState({
         randomSelection: false,
         error: error,
