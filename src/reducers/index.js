@@ -1,7 +1,8 @@
 const initialState = {
   auth: null,
-  currentApi: "https://89efc6cbe8fa.ngrok.io",
+  currentApi: "https://ae0906d278bc.ngrok.io",
   placeData: null,
+  latLong: null,
 };
 
 function rootReducer(uploadVal, action, state = initialState) {
@@ -36,6 +37,15 @@ function rootReducer(uploadVal, action, state = initialState) {
 
     case "GET_PLACE_DATA":
       return state["placeData"];
+
+    case "UPDATE_LAT_LONG":
+      state["latLong"] = uploadVal;
+      return {
+        ok: true,
+      };
+
+    case "GET_LAT_LONG":
+      return state["latLong"];
   }
 }
 

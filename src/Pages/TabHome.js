@@ -63,6 +63,7 @@ export default class TabHome extends React.Component {
       placeData: null,
       error: false,
       logo: null,
+      bottomMenu: false,
     };
   }
 
@@ -83,6 +84,8 @@ export default class TabHome extends React.Component {
       };
       let reverseGeocode = await Location.reverseGeocodeAsync(latLong);
 
+      contactReducer(latLong, "UPDATE_LAT_LONG");
+
       this.setState({
         locationPermission: true,
         locationObj: reverseGeocode[0],
@@ -94,7 +97,12 @@ export default class TabHome extends React.Component {
   };
 
   randomSelection = async () => {
-    this.setState({ randomSelection: true, popover: false, logo: null });
+    this.setState({
+      randomSelection: true,
+      popover: false,
+      logo: null,
+      bottomMenu: false,
+    });
     const authData = contactReducer(null, "GET_AUTH")["payload"];
     console.log(authData);
 
@@ -141,6 +149,7 @@ export default class TabHome extends React.Component {
         error: error,
         popover: true,
         placeData: placeData,
+        bottomMenu: true,
       });
     }
   };
@@ -170,15 +179,6 @@ export default class TabHome extends React.Component {
         this.setState({ logo: response["request"]["responseURL"] });
       })
       .catch((e) => this.setState({ logo: null }));
-    // let data
-    // try {
-    //   data = await getCall;
-    //   //console.log(response["request"]);
-    //   //return response["request"]["responseURL"];
-    // } catch (error) {
-    //   //console.log(error);
-    //   data = null
-    // }
   };
 
   topBar = () => {
@@ -332,13 +332,16 @@ export default class TabHome extends React.Component {
             </View>
           )}
         </View>
-        <SlidingUpPanel
-          ref={(node) => (this._panel = node)}
-          height={screenHeight * 0.6}
-          draggableRange={{ top: screenHeight * 0.6, bottom: 0 }}
-        >
-          <SlidingPanelContents />
-        </SlidingUpPanel>
+        {this.state.bottomMenu && (
+          <SlidingUpPanel
+            ref={(node) => (this._panel = node)}
+            height={screenHeight * 0.6}
+            draggableRange={{ top: screenHeight * 0.6, bottom: 0 }}
+            // onBottomReached={() => this.setState({ bottomMenu: false })}
+          >
+            <SlidingPanelContents latLong={this.state.latLong} />
+          </SlidingUpPanel>
+        )}
       </View>
     );
   }

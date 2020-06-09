@@ -90,7 +90,11 @@ function App() {
           screenOptions={{ transparentCard: true }}
         >
           <Stack.Screen name="AppHome" component={HomePage} />
-          <Stack.Screen name="Main" component={Main} />
+          <Stack.Screen
+            name="Main"
+            component={Main}
+            options={{ gestureEnabled: false }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
