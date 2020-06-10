@@ -280,6 +280,11 @@ export default class TabHome extends React.Component {
                 km away
               </Text>
             </View>
+            {this.state.placeData["opening_hours"]["open_now"] ? (
+              <Text style={styles.openText}>Open</Text>
+            ) : (
+              <Text style={styles.closedText}>Closed</Text>
+            )}
           </View>
         </View>
         <View style={styles.buttonRow}>
@@ -339,7 +344,7 @@ export default class TabHome extends React.Component {
             draggableRange={{ top: screenHeight * 0.6, bottom: 0 }}
             // onBottomReached={() => this.setState({ bottomMenu: false })}
           >
-            <SlidingPanelContents latLong={this.state.latLong} />
+            <SlidingPanelContents />
           </SlidingUpPanel>
         )}
       </View>
@@ -464,7 +469,7 @@ const styles = StyleSheet.create({
     height: screenHeight * 0.13,
     width: screenWidth * 0.375,
     resizeMode: "contain",
-    borderRadius: (screenHeight * 0.15) / 4,
+    borderRadius: (screenHeight * 0.13) / 4,
   },
   contentCol: {
     justifyContent: "center",
@@ -513,5 +518,17 @@ const styles = StyleSheet.create({
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
     fontWeight: "bold",
+  },
+  openText: {
+    fontSize: RFValue(10),
+    fontFamily: "AvenirNext-Regular",
+    color: "green",
+    marginTop: 5,
+  },
+  closedText: {
+    fontSize: RFValue(10),
+    fontFamily: "AvenirNext-Regular",
+    color: "red",
+    marginTop: 5,
   },
 });

@@ -1,6 +1,6 @@
 const initialState = {
   auth: null,
-  currentApi: "https://ae0906d278bc.ngrok.io",
+  currentApi: "https://1752d7552295.ngrok.io",
   placeData: null,
   latLong: null,
 };
