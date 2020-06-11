@@ -181,6 +181,53 @@ export default class TabHome extends React.Component {
       .catch((e) => this.setState({ logo: null }));
   };
 
+  openCloseTime(type) {
+    const dayDict = {
+      0: "Sunday",
+      1: "Monday",
+      2: "Tuesday",
+      3: "Wednesday",
+      4: "Thursday",
+      5: "Friday",
+      6: "Saturday",
+    };
+
+    let date = new Date(),
+      day = date.getDay(),
+      currentHour = date.getHours(),
+      currentDay = dayDict[day];
+
+    day -= 1;
+    if (day < 0) {
+      day = 6;
+    }
+
+    if (
+      this.state.placeData["opening_hours"]["open_now"] == true &&
+      0 < currentHour < 6
+    ) {
+      day -= 1;
+      if (day < 0) {
+        day = 6;
+      }
+    }
+
+    console.log(day);
+
+    let todaysHours = this.state.placeData["opening_hours"]["hours"][day];
+    let hours = todaysHours.split(":");
+    hours.shift();
+    hours = hours.join(":").split("–");
+
+    console.log(hours);
+
+    if (type == "close") {
+      return <Text style={styles.openCloseText}>(Closes at{hours[1]})</Text>;
+    } else {
+      return <Text style={styles.openCloseText}>(Opens at{hours[0]})</Text>;
+    }
+  }
+
   topBar = () => {
     var filterState = this.state.filters;
     return (
@@ -281,9 +328,15 @@ export default class TabHome extends React.Component {
               </Text>
             </View>
             {this.state.placeData["opening_hours"]["open_now"] ? (
-              <Text style={styles.openText}>Open</Text>
+              <View style={styles.openCloseRow}>
+                <Text style={styles.openText}>Open</Text>
+                {this.openCloseTime("close")}
+              </View>
             ) : (
-              <Text style={styles.closedText}>Closed</Text>
+              <View style={styles.openCloseRow}>
+                <Text style={styles.closedText}>Closed</Text>
+                {this.openCloseTime("open")}
+              </View>
             )}
           </View>
         </View>
@@ -344,7 +397,9 @@ export default class TabHome extends React.Component {
             draggableRange={{ top: screenHeight * 0.6, bottom: 0 }}
             // onBottomReached={() => this.setState({ bottomMenu: false })}
           >
-            <SlidingPanelContents />
+            {(dragHandler) => (
+              <SlidingPanelContents dragHandler={dragHandler} />
+            )}
           </SlidingUpPanel>
         )}
       </View>
@@ -529,6 +584,18 @@ const styles = StyleSheet.create({
     fontSize: RFValue(10),
     fontFamily: "AvenirNext-Regular",
     color: "red",
+    marginTop: 5,
+  },
+  openCloseRow: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  openCloseText: {
+    fontSize: RFValue(8),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    marginLeft: 5,
     marginTop: 5,
   },
 });

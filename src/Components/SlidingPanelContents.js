@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import contactReducer from "../reducers/index";
 
 import Overview from "../Components/SlideUp/Overview";
 import Photos from "../Components/SlideUp/Photos";
@@ -26,7 +27,10 @@ const Tab = createMaterialTopTabNavigator();
 export default class SlidingPanelContents extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { dragHandler: props.dragHandler };
+
+    console.log("drag handle: " + this.state.dragHandler);
+    contactReducer(this.state.dragHandler, "UPDATE_DRAG_HANDLE");
   }
 
   tabs = () => {

@@ -17,6 +17,7 @@ import { Rating } from "react-native-ratings";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { getDistance } from "geolib";
 import axios from "axios";
+import call from "react-native-phone-call";
 
 import contactReducer from "../../reducers/index";
 
@@ -30,6 +31,7 @@ export default class Overview extends React.Component {
       placeData: null,
       logo: null,
       latLong: null,
+      dragHandler: contactReducer(null, "GET_DRAG_HANDLE"),
     };
   }
 
@@ -68,6 +70,62 @@ export default class Overview extends React.Component {
     return (distance / 1000).toFixed(2);
   }
 
+  callNumber(number) {
+    const args = {
+      number: number,
+      prompt: true,
+    };
+
+    call(args).catch(console.error);
+  }
+
+  openCloseTime(type) {
+    const dayDict = {
+      0: "Sunday",
+      1: "Monday",
+      2: "Tuesday",
+      3: "Wednesday",
+      4: "Thursday",
+      5: "Friday",
+      6: "Saturday",
+    };
+
+    let date = new Date(),
+      day = date.getDay(),
+      currentHour = date.getHours(),
+      currentDay = dayDict[day];
+
+    day -= 1;
+    if (day < 0) {
+      day = 6;
+    }
+
+    if (
+      this.state.placeData["opening_hours"]["open_now"] == true &&
+      0 < currentHour < 6
+    ) {
+      day -= 1;
+      if (day < 0) {
+        day = 6;
+      }
+    }
+
+    console.log(day);
+
+    let todaysHours = this.state.placeData["opening_hours"]["hours"][day];
+    let hours = todaysHours.split(":");
+    hours.shift();
+    hours = hours.join(":").split("–");
+
+    console.log(hours);
+
+    if (type == "close") {
+      return <Text style={styles.openCloseText}>(Closes at{hours[1]})</Text>;
+    } else {
+      return <Text style={styles.openCloseText}>(Opens at{hours[0]})</Text>;
+    }
+  }
+
   render() {
     const priceMap = {
       1: "$",
@@ -76,12 +134,14 @@ export default class Overview extends React.Component {
       4: "$$$$",
       5: "$$$$$",
     };
-    console.log(this.state.placeData);
+    //console.log(this.state.placeData);
+    //console.log(this.state.dragHandler);
+
     return (
       <View style={styles.container}>
         {this.state.placeData != null && (
           <View style={styles.contentContainer}>
-            <View style={styles.contentRow}>
+            <View style={styles.contentRow} {...this.state.dragHandler}>
               <Image
                 source={{
                   uri:
@@ -118,16 +178,26 @@ export default class Overview extends React.Component {
                     km away
                   </Text>
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    this.callNumber(this.state.placeData["phone_number"])
+                  }
+                >
                   <Text style={styles.phoneText}>
                     {this.state.placeData["phone_number"]}
                   </Text>
                 </TouchableOpacity>
 
                 {this.state.placeData["opening_hours"]["open_now"] ? (
-                  <Text style={styles.openText}>Open</Text>
+                  <View style={styles.openCloseRow}>
+                    <Text style={styles.openText}>Open</Text>
+                    {this.openCloseTime("close")}
+                  </View>
                 ) : (
-                  <Text style={styles.closedText}>Closed</Text>
+                  <View style={styles.openCloseRow}>
+                    <Text style={styles.closedText}>Closed</Text>
+                    {this.openCloseTime("open")}
+                  </View>
                 )}
               </View>
             </View>
@@ -148,6 +218,8 @@ export default class Overview extends React.Component {
                             justifyContent: "flex-start",
                             alignItems: "center",
                             flexDirection: "row",
+                            width: "100%",
+                            flexWrap: "wrap",
                           }}
                           key={idx}
                         >
@@ -266,6 +338,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "column",
     height: "50%",
+    overflow: "scroll",
   },
   hoursHeader: {
     fontSize: RFValue(10),
@@ -296,6 +369,18 @@ const styles = StyleSheet.create({
     fontSize: RFValue(10),
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
+    marginTop: 5,
+  },
+  openCloseRow: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  openCloseText: {
+    fontSize: RFValue(8),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    marginLeft: 5,
     marginTop: 5,
   },
 });
