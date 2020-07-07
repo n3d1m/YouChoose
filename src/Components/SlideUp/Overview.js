@@ -18,8 +18,11 @@ import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { getDistance } from "geolib";
 import axios from "axios";
 import call from "react-native-phone-call";
+import { Linking } from "expo";
+import uberEatsLogo from "../../../assets/uberEatsLogo.png";
 
 import contactReducer from "../../reducers/index";
+import { ScrollView } from "react-native-gesture-handler";
 
 const screenHeight = Math.round(Dimensions.get("window").height);
 const screenWidth = Math.round(Dimensions.get("window").width);
@@ -32,6 +35,7 @@ export default class Overview extends React.Component {
       logo: null,
       latLong: null,
       dragHandler: contactReducer(null, "GET_DRAG_HANDLE"),
+      overflow: false,
     };
   }
 
@@ -40,6 +44,7 @@ export default class Overview extends React.Component {
 
     const placeData = contactReducer(null, "GET_PLACE_DATA");
     this.getLogo(placeData["logo_url"]);
+    this.overflowCheck(placeData);
 
     this.setState({
       placeData: placeData,
@@ -95,10 +100,12 @@ export default class Overview extends React.Component {
       currentHour = date.getHours(),
       currentDay = dayDict[day];
 
-    day -= 1;
-    if (day < 0) {
-      day = 6;
-    }
+    console.log("today: " + day);
+
+    // day -= 1;
+    // if (day < 0) {
+    //   day = 6;
+    // }
 
     if (
       this.state.placeData["opening_hours"]["open_now"] == true &&
@@ -117,14 +124,69 @@ export default class Overview extends React.Component {
     hours.shift();
     hours = hours.join(":").split("–");
 
-    console.log(hours);
-
     if (type == "close") {
       return <Text style={styles.openCloseText}>(Closes at{hours[1]})</Text>;
     } else {
-      return <Text style={styles.openCloseText}>(Opens at{hours[0]})</Text>;
+      console.log(hours[0].replace(/\s+/g, ""));
+      if (hours[0] == " Closed") {
+        return <Text></Text>;
+      } else {
+        return <Text style={styles.openCloseText}>(Opens at{hours[0]})</Text>;
+      }
     }
   }
+
+  eatsDeeplink = () => {
+    Linking.openURL(`ubereats://`);
+  };
+
+  webDeepLink = () => {
+    Linking.openURL(this.state.placeData["full_website"]);
+  };
+
+  overflowCheck = (obj) => {
+    let dataArr = obj["opening_hours"]["hours"];
+    let breakCondition = false;
+
+    for (let i in dataArr) {
+      let splitLength = dataArr[i].split(",").length;
+
+      if (splitLength > 1) {
+        breakCondition = true;
+        break;
+      }
+    }
+
+    this.setState({ overflow: breakCondition });
+  };
+
+  getCurrentDay = (dayVal) => {
+    const dayDict = {
+      0: "Sunday",
+      1: "Monday",
+      2: "Tuesday",
+      3: "Wednesday",
+      4: "Thursday",
+      5: "Friday",
+      6: "Saturday",
+    };
+
+    let date = new Date(),
+      day = date.getDay();
+
+    // day -= 1;
+    // if (day < 0) {
+    //   day = 6;
+    // }
+
+    let textDay = dayDict[day];
+
+    if (dayVal == textDay) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   render() {
     const priceMap = {
@@ -204,7 +266,15 @@ export default class Overview extends React.Component {
             <View style={styles.lowerRow}>
               <View style={styles.box1}>
                 <Text style={styles.hoursText}>Hours</Text>
-                <View style={styles.hoursCol}>
+                <ScrollView
+                  contentContainerStyle={
+                    ([styles.hoursCol],
+                    {
+                      height: this.state.overflow ? screenHeight * 0.52 : "50%",
+                    })
+                  }
+                  scrollEnabled={this.state.overflow}
+                >
                   {this.state.placeData["opening_hours"]["hours"].map(
                     (val, idx) => {
                       let day = val.split(":");
@@ -223,17 +293,45 @@ export default class Overview extends React.Component {
                           }}
                           key={idx}
                         >
-                          <Text style={styles.hoursHeader}>{day[0]}:</Text>
+                          <Text
+                            style={[
+                              {
+                                color: this.getCurrentDay(day[0])
+                                  ? "#FF6B00"
+                                  : "#002A57",
+                              },
+                              styles.hoursHeader,
+                            ]}
+                          >
+                            {day[0]}:
+                          </Text>
                           <Text style={styles.hoursSubText}>{hours}</Text>
                         </View>
                       );
                       //   return <Text key={idx}>{val}</Text>;
                     }
                   )}
-                </View>
+                </ScrollView>
               </View>
               <View style={styles.box2}>
-                <Text>hello</Text>
+                <Text style={styles.hoursText}>Delivery Options</Text>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    style={styles.eatsContainer}
+                    onPress={() => this.eatsDeeplink()}
+                  >
+                    <Image source={uberEatsLogo} style={styles.eats} />
+                  </TouchableOpacity>
+                  <View style={{ marginTop: screenHeight * 0.025 }} />
+                  {this.state.placeData["full_website"] != null && (
+                    <TouchableOpacity
+                      style={styles.eatsContainer}
+                      onPress={() => this.webDeepLink()}
+                    >
+                      <Text style={styles.buttonText}>Website</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             </View>
           </View>
@@ -334,21 +432,20 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   hoursCol: {
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "flex-start",
     flexDirection: "column",
-    height: "50%",
-    overflow: "scroll",
+    width: "100%",
+    marginTop: 15,
   },
   hoursHeader: {
-    fontSize: RFValue(10),
+    fontSize: RFValue(9),
     fontFamily: "AvenirNext-Regular",
-    color: "#002A57",
     fontWeight: "bold",
     marginTop: 10,
   },
   hoursSubText: {
-    fontSize: RFValue(10),
+    fontSize: RFValue(9),
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
     marginTop: 10,
@@ -382,5 +479,32 @@ const styles = StyleSheet.create({
     color: "#002A57",
     marginLeft: 5,
     marginTop: 5,
+  },
+  eatsContainer: {
+    height: screenHeight * 0.065,
+    width: screenWidth * 0.35,
+    justifyContent: "center",
+    alignItems: "center",
+    borderColor: "#002A57",
+    borderWidth: 2,
+    borderRadius: 10,
+  },
+  eats: {
+    height: screenHeight * 0.18,
+    width: screenWidth * 0.3,
+    resizeMode: "contain",
+  },
+  buttonText: {
+    fontSize: RFValue(14),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    width: "100%",
+    height: "46%",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
   },
 });
