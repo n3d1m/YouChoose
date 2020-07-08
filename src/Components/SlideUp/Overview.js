@@ -40,7 +40,7 @@ export default class Overview extends React.Component {
   }
 
   componentDidMount() {
-    console.log("i am being called");
+    //console.log("i am being called");
 
     const placeData = contactReducer(null, "GET_PLACE_DATA");
     this.getLogo(placeData["logo_url"]);
@@ -53,11 +53,11 @@ export default class Overview extends React.Component {
   }
 
   getLogo = (logo) => {
-    console.log(logo);
+    //console.log(logo);
     axios
       .get(`https://logo.clearbit.com/${logo}?size=100`)
       .then((response) => {
-        console.log("response: " + response["request"]["responseURL"]);
+        //console.log("response: " + response["request"]["responseURL"]);
         this.setState({ logo: response["request"]["responseURL"] });
       })
       .catch((e) => this.setState({ logo: null }));
@@ -100,12 +100,12 @@ export default class Overview extends React.Component {
       currentHour = date.getHours(),
       currentDay = dayDict[day];
 
-    console.log("today: " + day);
+    //console.log("today: " + day);
 
-    // day -= 1;
-    // if (day < 0) {
-    //   day = 6;
-    // }
+    day -= 1;
+    if (day < 0) {
+      day = 6;
+    }
 
     if (
       this.state.placeData["opening_hours"]["open_now"] == true &&
@@ -117,7 +117,7 @@ export default class Overview extends React.Component {
       }
     }
 
-    console.log(day);
+    //console.log(day);
 
     let todaysHours = this.state.placeData["opening_hours"]["hours"][day];
     let hours = todaysHours.split(":");
@@ -127,7 +127,7 @@ export default class Overview extends React.Component {
     if (type == "close") {
       return <Text style={styles.openCloseText}>(Closes at{hours[1]})</Text>;
     } else {
-      console.log(hours[0].replace(/\s+/g, ""));
+      //console.log(hours[0].replace(/\s+/g, ""));
       if (hours[0] == " Closed") {
         return <Text></Text>;
       } else {
@@ -271,6 +271,7 @@ export default class Overview extends React.Component {
                     ([styles.hoursCol],
                     {
                       height: this.state.overflow ? screenHeight * 0.52 : "50%",
+                      marginTop: 25,
                     })
                   }
                   scrollEnabled={this.state.overflow}
@@ -436,7 +437,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "column",
     width: "100%",
-    marginTop: 15,
   },
   hoursHeader: {
     fontSize: RFValue(9),
