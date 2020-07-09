@@ -1,23 +1,11 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  Image,
-  TouchableOpacity,
-  Animated,
-  Keyboard,
-  TouchableWithoutFeedback,
-  Dimensions,
-  TextInput,
-  Text,
-  StatusBar,
-  ActivityIndicator,
-} from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import contactReducer from "../reducers/index";
 
 import Overview from "../Components/SlideUp/Overview";
 import Photos from "../Components/SlideUp/Photos";
+import Reviews from "../Components/SlideUp/Reviews";
 
 const screenHeight = Math.round(Dimensions.get("window").height);
 const screenWidth = Math.round(Dimensions.get("window").width);
@@ -49,6 +37,7 @@ export default class SlidingPanelContents extends React.Component {
       >
         <Tab.Screen name="Overview" component={Overview} />
         <Tab.Screen name="Photos" component={Photos} />
+        <Tab.Screen name="Reviews" component={Reviews} />
       </Tab.Navigator>
     );
   };

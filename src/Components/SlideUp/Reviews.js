@@ -1,12 +1,12 @@
 import React from "react";
-import { StyleSheet, View, Image, Dimensions } from "react-native";
+import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
 import contactReducer from "../../reducers/index";
 import { ScrollView } from "react-native-gesture-handler";
 
 const screenHeight = Math.round(Dimensions.get("window").height);
 const screenWidth = Math.round(Dimensions.get("window").width);
 
-export default class Photos extends React.Component {
+export default class Reviews extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -16,9 +16,9 @@ export default class Photos extends React.Component {
   }
 
   componentDidMount() {
-    //console.log("i am being called");
-
     const placeData = contactReducer(null, "GET_PLACE_DATA");
+
+    console.log("review: " + placeData["reviews"][0]);
 
     this.setState({
       placeData: placeData,
@@ -29,16 +29,18 @@ export default class Photos extends React.Component {
     return (
       <View style={styles.container}>
         {this.state.placeData != null && (
-          <ScrollView contentContainerStyle={styles.photoCol}>
-            {this.state.placeData["photo_array"].map((val, idx) => {
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            {this.state.placeData["reviews"].map((val, idx) => {
               return (
-                <View style={styles.imageContainer} key={idx}>
-                  <Image
-                    source={{
-                      uri: val,
-                    }}
-                    style={styles.image}
-                  />
+                <View style={styles.scrollContainer} key={idx}>
+                  <View style={styles.topSection}>
+                    <Image
+                      source={{
+                        uri: val["profile_photo_url"],
+                      }}
+                      style={styles.image}
+                    />
+                  </View>
                 </View>
               );
             })}
@@ -56,26 +58,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     flexDirection: "column",
-    // dpaddingBottom: "10%",
   },
-  photoCol: {
+  scrollContainer: {
+    width: screenWidth,
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
-    width: screenWidth,
   },
-  image: {
-    height: screenHeight * 0.35,
-    width: screenWidth * 0.9,
-    resizeMode: "stretch",
-    borderRadius: 7.5,
-  },
-  imageContainer: {
+  topSection: {
+    width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 10,
-    borderWidth: 3,
-    borderColor: "#FF6B00",
-    marginTop: 20,
+    flexDirection: "row",
+  },
+  image: {
+    height: screenHeight * 0.1,
+    width: screenWidth * 0.15,
+    resizeMode: "contain",
   },
 });

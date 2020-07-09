@@ -100,7 +100,7 @@ export default class Overview extends React.Component {
       currentHour = date.getHours(),
       currentDay = dayDict[day];
 
-    //console.log("today: " + day);
+    //console.log("today: " + day, currentHour);
 
     day -= 1;
     if (day < 0) {
@@ -109,7 +109,8 @@ export default class Overview extends React.Component {
 
     if (
       this.state.placeData["opening_hours"]["open_now"] == true &&
-      0 < currentHour < 6
+      currentHour > 0 &&
+      currentHour < 6
     ) {
       day -= 1;
       if (day < 0) {
@@ -117,7 +118,7 @@ export default class Overview extends React.Component {
       }
     }
 
-    //console.log(day);
+    console.log(day);
 
     let todaysHours = this.state.placeData["opening_hours"]["hours"][day];
     let hours = todaysHours.split(":");
