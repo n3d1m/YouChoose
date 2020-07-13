@@ -2,6 +2,8 @@ import React from "react";
 import { StyleSheet, View, Text, Dimensions, Image } from "react-native";
 import contactReducer from "../../reducers/index";
 import { ScrollView } from "react-native-gesture-handler";
+import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import { Rating } from "react-native-ratings";
 
 const screenHeight = Math.round(Dimensions.get("window").height);
 const screenWidth = Math.round(Dimensions.get("window").width);
@@ -32,7 +34,14 @@ export default class Reviews extends React.Component {
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             {this.state.placeData["reviews"].map((val, idx) => {
               return (
-                <View style={styles.scrollContainer} key={idx}>
+                <View
+                  style={[
+                    styles.scrollContainer,
+                    idx < this.state.placeData["reviews"].length - 1 &&
+                      styles.scrollBorder,
+                  ]}
+                  key={idx}
+                >
                   <View style={styles.topSection}>
                     <Image
                       source={{
@@ -40,6 +49,24 @@ export default class Reviews extends React.Component {
                       }}
                       style={styles.image}
                     />
+                    <View style={styles.textCol}>
+                      <Text style={styles.topText}>{val["author_name"]}</Text>
+                      <View style={styles.ratingRow}>
+                        <Rating
+                          ratingColor="#FF6B00"
+                          type="custom"
+                          imageSize={RFValue(10)}
+                          startingValue={val["rating"]}
+                          readonly={true}
+                        />
+                        <Text style={styles.ratingText}>
+                          ({val["relative_time_description"]})
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={styles.ratingSection}>
+                    <Text style={styles.descriptionText}>{val["text"]}</Text>
                   </View>
                 </View>
               );
@@ -64,6 +91,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
+    paddingBottom: screenHeight * 0.015,
+  },
+  scrollBorder: {
+    borderBottomColor: "#FF6B00",
+    borderBottomWidth: 1,
   },
   topSection: {
     width: "100%",
@@ -75,5 +107,37 @@ const styles = StyleSheet.create({
     height: screenHeight * 0.1,
     width: screenWidth * 0.15,
     resizeMode: "contain",
+  },
+  topText: {
+    fontSize: RFValue(12),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+  },
+  textCol: {
+    justifyContent: "center",
+    alignItems: "flex-start",
+    flexDirection: "column",
+    marginLeft: 10,
+  },
+  ratingSection: {
+    width: screenWidth * 0.95,
+    textAlign: "left",
+  },
+  ratingRow: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  ratingText: {
+    fontSize: RFValue(10),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    marginLeft: 5,
+  },
+  descriptionText: {
+    fontSize: RFValue(12),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    marginTop: 5,
   },
 });

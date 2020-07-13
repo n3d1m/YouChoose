@@ -4,14 +4,9 @@ import {
   View,
   Image,
   TouchableOpacity,
-  Animated,
-  Keyboard,
-  TouchableWithoutFeedback,
   Dimensions,
-  TextInput,
   Text,
-  StatusBar,
-  ActivityIndicator,
+  Platform,
 } from "react-native";
 import { Rating } from "react-native-ratings";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
@@ -189,6 +184,17 @@ export default class Overview extends React.Component {
     }
   };
 
+  openMaps = () => {
+    let latLong = this.state.placeData["geometry"]["location"];
+    const scheme = Platform.select({
+      ios: "maps:0,0?q=",
+      android: "geo:0,0?q=",
+    });
+    let url = scheme + `${latLong["lat"]},${latLong["lng"]}`;
+    console.log(url);
+    Linking.openURL(url);
+  };
+
   render() {
     const priceMap = {
       1: "$",
@@ -220,9 +226,12 @@ export default class Overview extends React.Component {
                 <Text style={styles.contentText}>
                   {this.state.placeData["name"]}
                 </Text>
-                <Text style={styles.contentText}>
-                  {this.state.placeData["address"]}
-                </Text>
+                <TouchableOpacity onPress={() => this.openMaps()}>
+                  <Text style={styles.contentText}>
+                    {this.state.placeData["address"]}
+                  </Text>
+                </TouchableOpacity>
+
                 <View style={styles.infoRow}>
                   <Rating
                     ratingColor="#FF6B00"

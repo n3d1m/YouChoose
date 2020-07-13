@@ -12,6 +12,8 @@ import {
   Text,
   StatusBar,
   ActivityIndicator,
+  Linking,
+  Platform,
 } from "react-native";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { Entypo, Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
@@ -224,9 +226,25 @@ export default class TabHome extends React.Component {
     if (type == "close") {
       return <Text style={styles.openCloseText}>(Closes at{hours[1]})</Text>;
     } else {
-      return <Text style={styles.openCloseText}>(Opens at{hours[0]})</Text>;
+      //console.log(hours[0].replace(/\s+/g, ""));
+      if (hours[0] == " Closed") {
+        return <Text></Text>;
+      } else {
+        return <Text style={styles.openCloseText}>(Opens at{hours[0]})</Text>;
+      }
     }
   }
+
+  openMaps = () => {
+    let latLong = this.state.placeData["geometry"]["location"];
+    const scheme = Platform.select({
+      ios: "maps:0,0?q=",
+      android: "geo:0,0?q=",
+    });
+    let url = scheme + `${latLong["lat"]},${latLong["lng"]}`;
+    console.log(url);
+    Linking.openURL(url);
+  };
 
   topBar = () => {
     var filterState = this.state.filters;
@@ -306,9 +324,12 @@ export default class TabHome extends React.Component {
             <Text style={styles.contentText}>
               {this.state.placeData["name"]}
             </Text>
-            <Text style={styles.contentText}>
-              {this.state.placeData["address"]}
-            </Text>
+            <TouchableOpacity onPress={() => this.openMaps()}>
+              <Text style={styles.contentText}>
+                {this.state.placeData["address"]}
+              </Text>
+            </TouchableOpacity>
+
             <View style={styles.infoRow}>
               <Rating
                 ratingColor="#FF6B00"
