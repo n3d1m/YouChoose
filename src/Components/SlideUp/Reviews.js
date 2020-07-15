@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
-    paddingBottom: screenHeight * 0.015,
+    paddingBottom: screenHeight * 0.02,
   },
   scrollBorder: {
     borderBottomColor: "#FF6B00",
@@ -138,6 +138,6 @@ const styles = StyleSheet.create({
     fontSize: RFValue(12),
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
-    marginTop: 5,
+    marginTop: 0,
   },
 });

@@ -449,13 +449,13 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   hoursHeader: {
-    fontSize: RFValue(9),
+    fontSize: RFValue(8.5),
     fontFamily: "AvenirNext-Regular",
     fontWeight: "bold",
     marginTop: 10,
   },
   hoursSubText: {
-    fontSize: RFValue(9),
+    fontSize: RFValue(8.5),
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
     marginTop: 10,

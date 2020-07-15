@@ -15,9 +15,10 @@ const Tab = createMaterialTopTabNavigator();
 export default class SlidingPanelContents extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { dragHandler: props.dragHandler };
+    this.state = {
+      dragHandler: props.dragHandler,
+    };
 
-    console.log("drag handle: " + this.state.dragHandler);
     contactReducer(this.state.dragHandler, "UPDATE_DRAG_HANDLE");
   }
 

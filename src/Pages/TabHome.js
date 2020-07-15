@@ -26,6 +26,7 @@ import { getDistance } from "geolib";
 import SlidingUpPanel from "rn-sliding-up-panel";
 
 import SlidingPanelContents from "../Components/SlidingPanelContents";
+import Filters from "../Components/Filters";
 
 //StatusBar.setBarStyle("dark-content", true);
 
@@ -66,6 +67,12 @@ export default class TabHome extends React.Component {
       error: false,
       logo: null,
       bottomMenu: false,
+      category: null,
+      priceRange: null,
+      distance: null,
+      rating: null,
+      filterSelected: false,
+      filterType: null,
     };
   }
 
@@ -152,6 +159,7 @@ export default class TabHome extends React.Component {
         popover: true,
         placeData: placeData,
         bottomMenu: true,
+        filterSelected: false,
       });
     }
   };
@@ -246,6 +254,11 @@ export default class TabHome extends React.Component {
     Linking.openURL(url);
   };
 
+  getFilter = (name) => {
+    this.setState({ filterSelected: true, filterType: name });
+    this._filterPanel.show();
+  };
+
   topBar = () => {
     var filterState = this.state.filters;
     return (
@@ -260,7 +273,13 @@ export default class TabHome extends React.Component {
         <View style={styles.row2}>
           {Object.keys(filterState).map((val, idx) => {
             return (
-              <View style={styles.smallBox} key={idx}>
+              <TouchableOpacity
+                key={idx}
+                style={styles.smallBox}
+                onPress={() => {
+                  this.getFilter(val);
+                }}
+              >
                 {filterState[val]["set"] == "IonIcons" ? (
                   <Ionicons
                     name={filterState[val]["iconName"]}
@@ -276,7 +295,7 @@ export default class TabHome extends React.Component {
                 ) : null}
                 <Text style={styles.row2Text}>{val}</Text>
                 <View style={{ width: RFValue(5) }} />
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
@@ -423,6 +442,23 @@ export default class TabHome extends React.Component {
             )}
           </SlidingUpPanel>
         )}
+
+        {/* create another sliding panel component that doesn't need to be conditionally rendered and call it from
+        getFilter */}
+
+        <SlidingUpPanel
+          ref={(node) => (this._filterPanel = node)}
+          height={screenHeight * 0.4}
+          draggableRange={{ top: screenHeight * 0.4, bottom: 0 }}
+          // onBottomReached={() => this.setState({ bottomMenu: false })}
+        >
+          {(dragHandler) => (
+            <Filters
+              dragHandler={dragHandler}
+              filterType={this.state.filterType}
+            />
+          )}
+        </SlidingUpPanel>
       </View>
     );
   }
@@ -443,6 +479,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     alignItems: "center",
     flexDirection: "column",
+    zIndex: 1,
   },
   row1: {
     width: "100%",
@@ -469,6 +506,7 @@ const styles = StyleSheet.create({
   smallBox: {
     width: "20%",
     height: screenHeight * 0.03,
+    zIndex: 2,
     borderColor: "#FF6B00",
     borderWidth: 2,
     borderRadius: 10,

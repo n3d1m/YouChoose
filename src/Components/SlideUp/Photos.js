@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     flexDirection: "column",
-    // dpaddingBottom: "10%",
+    paddingBottom: "10%",
   },
   photoCol: {
     justifyContent: "flex-start",
