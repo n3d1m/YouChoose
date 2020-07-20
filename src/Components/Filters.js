@@ -46,7 +46,10 @@ export default class Filters extends React.Component {
           {Object.keys(images).map((val, idx) => {
             return (
               <TouchableOpacity style={styles.imageContainer} key={idx}>
-                <Image source={images[val]["uri"]} style={styles.image} />
+                <Image
+                  source={{ uri: images[val]["uri"] }}
+                  style={styles.image}
+                />
                 <View style={styles.centerView}>
                   <Text style={styles.imageText}>{val}</Text>
                 </View>
@@ -99,11 +102,11 @@ const styles = StyleSheet.create({
   photoCol: {
     flexDirection: "row",
     flexWrap: "wrap",
-    width: screenWidth * 0.85,
-    justifyContent: "space-between",
+    width: screenWidth,
+    justifyContent: "space-evenly",
   },
   image: {
-    height: screenHeight * 0.15,
+    height: screenHeight * 0.125,
     width: screenWidth * 0.4,
     resizeMode: "stretch",
     borderRadius: 7.5,
@@ -115,6 +118,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 3,
     borderColor: "#002A57",
+    marginTop: 10,
   },
   centerView: {
     position: "absolute",

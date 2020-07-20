@@ -255,8 +255,10 @@ export default class TabHome extends React.Component {
   };
 
   getFilter = (name) => {
-    this.setState({ filterSelected: true, filterType: name });
-    this._filterPanel.show();
+    if (!this.state.bottomMenu) {
+      this.setState({ filterSelected: true, filterType: name });
+      this._filterPanel.show();
+    }
   };
 
   topBar = () => {
@@ -324,7 +326,7 @@ export default class TabHome extends React.Component {
             color="#002A57"
             size={RFValue(15)}
             style={{ marginLeft: -10, marginTop: -5 }}
-            onPress={() => this.setState({ popover: false })}
+            onPress={() => this.setState({ popover: false, bottomMenu: false })}
           />
         </View>
         <View style={styles.contentRow}>
@@ -445,20 +447,21 @@ export default class TabHome extends React.Component {
 
         {/* create another sliding panel component that doesn't need to be conditionally rendered and call it from
         getFilter */}
-
-        <SlidingUpPanel
-          ref={(node) => (this._filterPanel = node)}
-          height={screenHeight * 0.4}
-          draggableRange={{ top: screenHeight * 0.4, bottom: 0 }}
-          // onBottomReached={() => this.setState({ bottomMenu: false })}
-        >
-          {(dragHandler) => (
-            <Filters
-              dragHandler={dragHandler}
-              filterType={this.state.filterType}
-            />
-          )}
-        </SlidingUpPanel>
+        {!this.state.bottomMenu && (
+          <SlidingUpPanel
+            ref={(node) => (this._filterPanel = node)}
+            height={screenHeight * 0.6}
+            draggableRange={{ top: screenHeight * 0.6, bottom: 0 }}
+            // onBottomReached={() => this.setState({ bottomMenu: false })}
+          >
+            {(dragHandler) => (
+              <Filters
+                dragHandler={dragHandler}
+                filterType={this.state.filterType}
+              />
+            )}
+          </SlidingUpPanel>
+        )}
       </View>
     );
   }
