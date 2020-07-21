@@ -12,6 +12,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { Rating } from "react-native-ratings";
 import images from "../categoryImages/images";
+import { AntDesign } from "@expo/vector-icons";
 
 const screenHeight = Math.round(Dimensions.get("window").height);
 const screenWidth = Math.round(Dimensions.get("window").width);
@@ -37,15 +38,37 @@ export default class Filters extends React.Component {
 
   category = () => {
     console.log(images);
+    const keys = Object.keys(images);
+    keys.sort();
     return (
       <View style={styles.filterCol}>
         <Text style={styles.titleText} {...this.state.dragHandler}>
           {this.state.filterType}
         </Text>
         <ScrollView contentContainerStyle={styles.photoCol}>
-          {Object.keys(images).map((val, idx) => {
+          <TouchableOpacity
+            style={styles.iconContainer}
+            onPress={() => this.props.filterValue(this.state.filterType, null)}
+          >
+            <AntDesign
+              name="close"
+              size={RFPercentage(14)}
+              style={{ marginTop: 0, opacity: 0.5 }}
+              color="red"
+            />
+            <View style={styles.centerView}>
+              <Text style={styles.imageText}>None</Text>
+            </View>
+          </TouchableOpacity>
+          {keys.map((val, idx) => {
             return (
-              <TouchableOpacity style={styles.imageContainer} key={idx}>
+              <TouchableOpacity
+                style={styles.imageContainer}
+                key={idx}
+                onPress={() =>
+                  this.props.filterValue(this.state.filterType, val)
+                }
+              >
                 <Image
                   source={{ uri: images[val]["uri"] }}
                   style={styles.image}
@@ -119,6 +142,16 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: "#002A57",
     marginTop: 10,
+  },
+  iconContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    borderWidth: 3,
+    borderColor: "#002A57",
+    marginTop: 10,
+    height: screenHeight * 0.13,
+    width: screenWidth * 0.4,
   },
   centerView: {
     position: "absolute",

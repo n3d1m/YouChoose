@@ -261,6 +261,15 @@ export default class TabHome extends React.Component {
     }
   };
 
+  filterValue = (name, value) => {
+    switch (name) {
+      case "Category":
+        this.setState({ category: value });
+        break;
+    }
+    this._filterPanel.hide();
+  };
+
   topBar = () => {
     var filterState = this.state.filters;
     return (
@@ -295,7 +304,7 @@ export default class TabHome extends React.Component {
                     size={RFValue(12)}
                   />
                 ) : null}
-                <Text style={styles.row2Text}>{val}</Text>
+                {this.filterDisplay(val)}
                 <View style={{ width: RFValue(5) }} />
               </TouchableOpacity>
             );
@@ -303,6 +312,45 @@ export default class TabHome extends React.Component {
         </View>
       </View>
     );
+  };
+
+  filterDisplay = (name) => {
+    switch (name) {
+      case "Category":
+        let category = this.state.category != null ? this.state.category : name;
+        return (
+          <Text
+            style={[
+              styles.row2Text,
+              { fontSize: category.length < 11 ? RFValue(8) : RFValue(6) },
+            ]}
+          >
+            {category}
+          </Text>
+        );
+      case "Price Range":
+        let priceRange =
+          this.state.priceRange != null ? this.state.priceRange : name;
+        return (
+          <Text style={[styles.row2Text, { fontSize: RFValue(8) }]}>
+            {priceRange}
+          </Text>
+        );
+      case "Distance":
+        let distance = this.state.distance != null ? this.state.distance : name;
+        return (
+          <Text style={[styles.row2Text, { fontSize: RFValue(8) }]}>
+            {distance}
+          </Text>
+        );
+      case "Rating":
+        let rating = this.state.rating != null ? this.state.rating : name;
+        return (
+          <Text style={[styles.row2Text, { fontSize: RFValue(8) }]}>
+            {rating}
+          </Text>
+        );
+    }
   };
 
   popover = () => {
@@ -458,6 +506,7 @@ export default class TabHome extends React.Component {
               <Filters
                 dragHandler={dragHandler}
                 filterType={this.state.filterType}
+                filterValue={this.filterValue}
               />
             )}
           </SlidingUpPanel>
@@ -525,7 +574,7 @@ const styles = StyleSheet.create({
     color: "#002A57",
   },
   row2Text: {
-    fontSize: RFValue(8),
+    // fontSize: RFValue(8),
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
   },

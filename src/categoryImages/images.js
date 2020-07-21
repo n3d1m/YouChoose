@@ -111,6 +111,10 @@ const images = {
     imgName: "Vietnamese",
     uri: "https://storage.googleapis.com/category-bucket/vegan.jpg",
   },
+  Mediterranean: {
+    imgName: "Mediterranean",
+    uri: "https://storage.googleapis.com/category-bucket/Mediterranean.jpg",
+  },
 };
 
 export default images;
