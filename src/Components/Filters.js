@@ -23,6 +23,8 @@ export default class Filters extends React.Component {
     this.state = {
       dragHandler: props.dragHandler,
       filterType: props.filterType,
+      priceRange: props.priceRange,
+      priceArr: null,
     };
   }
 
@@ -33,11 +35,41 @@ export default class Filters extends React.Component {
       };
     }
 
+    if (props.priceRange !== state.priceRange) {
+      return {
+        priceRange: props.priceRange,
+      };
+    }
+
     return null;
   }
 
+  componentDidMount() {
+    if (this.state.priceRange == null) {
+      this.state.priceArr = [];
+    }
+  }
+
+  priceDeconstruct = () => {
+    if (this.state.priceArr.length == 0) {
+      return null;
+    } else {
+      return this.state.priceArr.join(", ");
+    }
+  };
+
+  priceSelect = (val) => {
+    if (this.state.priceArr.includes(val)) {
+      this.state.priceArr = this.state.priceArr.filter((item) => item !== val);
+    } else {
+      this.state.priceArr.push(val);
+    }
+
+    this.setState({ priceArr: this.state.priceArr });
+  };
+
   category = () => {
-    console.log(images);
+    //console.log(images);
     const keys = Object.keys(images);
     keys.sort();
     return (
@@ -84,6 +116,51 @@ export default class Filters extends React.Component {
     );
   };
 
+  priceRange = () => {
+    const prices = ["$", "$$", "$$$", "$$$$"];
+    return (
+      <View style={styles.filterCol}>
+        <Text style={styles.titleText} {...this.state.dragHandler}>
+          {this.state.filterType}
+        </Text>
+        <View style={[styles.photoCol, { marginTop: screenHeight * 0.04 }]}>
+          {prices.map((val, idx) => {
+            return (
+              <TouchableOpacity
+                style={[
+                  styles.iconContainer,
+                  {
+                    backgroundColor:
+                      this.state.priceArr != null &&
+                      this.state.priceArr.includes(val)
+                        ? "#FF6B00"
+                        : "white",
+                  },
+                ]}
+                key={idx}
+                onPress={() => this.priceSelect(val)}
+              >
+                <Text style={styles.priceText}>{val}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() =>
+            this.props.filterValue(
+              this.state.filterType,
+              this.priceDeconstruct()
+            )
+          }
+        >
+          <Text style={styles.buttonText}>Enter</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   filterRender() {
     switch (this.state.filterType) {
       case null:
@@ -91,11 +168,14 @@ export default class Filters extends React.Component {
 
       case "Category":
         return this.category();
+
+      case "Price Range":
+        return this.priceRange();
     }
   }
 
   render() {
-    console.log(this.state.dragHandler, this.state.filterType);
+    console.log(this.state.priceArr);
     return <View style={styles.container}>{this.filterRender()}</View>;
   }
 }
@@ -112,6 +192,13 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "column",
+  },
+  priceCol: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "column",
+    height: "100%",
+    backgroundColor: "red",
   },
   titleText: {
     fontSize: RFValue(16),
@@ -163,6 +250,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   imageText: {
+    fontSize: RFValue(16),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    fontWeight: "bold",
+  },
+  priceText: {
+    fontSize: RFValue(32),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    fontWeight: "bold",
+  },
+  button: {
+    width: screenWidth * 0.5,
+    height: screenHeight * 0.075,
+    backgroundColor: "#FF6B00",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: screenHeight * 0.07,
+  },
+  buttonText: {
     fontSize: RFValue(16),
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",

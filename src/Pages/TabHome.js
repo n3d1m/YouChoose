@@ -266,8 +266,12 @@ export default class TabHome extends React.Component {
       case "Category":
         this.setState({ category: value });
         break;
+      case "Price Range":
+        this.setState({ priceRange: value });
+        break;
     }
     this._filterPanel.hide();
+    this.setState({ filterSelected: false });
   };
 
   topBar = () => {
@@ -331,8 +335,14 @@ export default class TabHome extends React.Component {
       case "Price Range":
         let priceRange =
           this.state.priceRange != null ? this.state.priceRange : name;
+        console.log("display: " + priceRange);
         return (
-          <Text style={[styles.row2Text, { fontSize: RFValue(8) }]}>
+          <Text
+            style={[
+              styles.row2Text,
+              { fontSize: priceRange.length < 15 ? RFValue(8) : RFValue(6) },
+            ]}
+          >
             {priceRange}
           </Text>
         );
@@ -495,18 +505,24 @@ export default class TabHome extends React.Component {
 
         {/* create another sliding panel component that doesn't need to be conditionally rendered and call it from
         getFilter */}
+        {console.log(this.state.filterType)}
+
         {!this.state.bottomMenu && (
           <SlidingUpPanel
             ref={(node) => (this._filterPanel = node)}
             height={screenHeight * 0.6}
-            draggableRange={{ top: screenHeight * 0.6, bottom: 0 }}
-            // onBottomReached={() => this.setState({ bottomMenu: false })}
+            draggableRange={{
+              top: screenHeight * 0.6,
+              bottom: 0,
+            }}
+            onBottomReached={() => this.setState({ filterSelected: false })}
           >
             {(dragHandler) => (
               <Filters
                 dragHandler={dragHandler}
                 filterType={this.state.filterType}
                 filterValue={this.filterValue}
+                priceRange={this.state.priceRange}
               />
             )}
           </SlidingUpPanel>
