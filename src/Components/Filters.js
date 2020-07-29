@@ -13,6 +13,7 @@ import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { Rating } from "react-native-ratings";
 import images from "../categoryImages/images";
 import { AntDesign } from "@expo/vector-icons";
+import Slider from "@brlja/react-native-slider";
 
 const screenHeight = Math.round(Dimensions.get("window").height);
 const screenWidth = Math.round(Dimensions.get("window").width);
@@ -25,6 +26,7 @@ export default class Filters extends React.Component {
       filterType: props.filterType,
       priceRange: props.priceRange,
       priceArr: null,
+      distanceVal: 1,
     };
   }
 
@@ -66,6 +68,26 @@ export default class Filters extends React.Component {
     }
 
     this.setState({ priceArr: this.state.priceArr });
+  };
+
+  distanceText = (usage) => {
+    let number =
+        Math.round((this.state.distanceVal + Number.EPSILON) * 100) / 100,
+      returnText = "";
+
+    if (number == 1) {
+      returnText = "<1 km";
+    } else if (number == 20) {
+      returnText = "20 km +";
+    } else {
+      returnText = `${number} km`;
+    }
+
+    if (usage == "render") {
+      return <Text style={styles.distanceText}>{returnText}</Text>;
+    } else {
+      return returnText;
+    }
   };
 
   category = () => {
@@ -161,6 +183,68 @@ export default class Filters extends React.Component {
     );
   };
 
+  distance = () => {
+    const markerValues = [
+      { value: 1, text: "<1 km" },
+      { value: 5, text: "5 km" },
+      { value: 10, text: "10 km" },
+      { value: 15, text: "15 km" },
+      { value: 20, text: "20 km +" },
+    ];
+
+    return (
+      <View style={styles.filterCol}>
+        <Text style={styles.titleText} {...this.state.dragHandler}>
+          {this.state.filterType}
+        </Text>
+        {this.distanceText("render")}
+        <View style={styles.slideContainer}>
+          <View style={styles.markerContainer}>
+            {markerValues.map((val, idx) => {
+              return (
+                <View style={styles.markerFlex} key={idx}>
+                  <View
+                    style={[
+                      styles.markers,
+                      {
+                        backgroundColor:
+                          this.state.distanceVal < val["value"]
+                            ? "#002A57"
+                            : "#FF6B00",
+                      },
+                    ]}
+                  ></View>
+                  <Text style={styles.markerText}>{val["text"]}</Text>
+                </View>
+              );
+            })}
+          </View>
+          <Slider
+            value={this.state.distanceVal}
+            onValueChange={(value) => this.setState({ distanceVal: value })}
+            style={styles.sliderStyle}
+            minimumTrackTintColor="#FF6B00"
+            maximumTrackTintColor="#002A57"
+            thumbTintColor="#FF6B00"
+            minimumValue={1}
+            maximumValue={20}
+          />
+        </View>
+        <TouchableOpacity
+          style={[styles.button, { marginTop: screenHeight * 0.3 }]}
+          onPress={() =>
+            this.props.filterValue(
+              this.state.filterType,
+              this.distanceText("return")
+            )
+          }
+        >
+          <Text style={styles.buttonText}>Enter</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   filterRender() {
     switch (this.state.filterType) {
       case null:
@@ -171,11 +255,13 @@ export default class Filters extends React.Component {
 
       case "Price Range":
         return this.priceRange();
+
+      case "Distance":
+        return this.distance();
     }
   }
 
   render() {
-    console.log(this.state.priceArr);
     return <View style={styles.container}>{this.filterRender()}</View>;
   }
 }
@@ -275,5 +361,50 @@ const styles = StyleSheet.create({
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
     fontWeight: "bold",
+  },
+  sliderStyle: {
+    width: screenWidth * 0.85,
+  },
+  slideContainer: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "column",
+    position: "relative",
+    marginTop: screenHeight * 0.025,
+  },
+  markerContainer: {
+    position: "absolute",
+    width: screenWidth * 0.91,
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  markerFlex: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "column",
+    width: 40,
+  },
+  markers: {
+    height: 15,
+    width: 15,
+    borderRadius: 100,
+    marginTop: 12.5,
+  },
+  markerText: {
+    fontSize: RFValue(8),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
+    textAlign: "center",
+    fontWeight: "bold",
+    marginTop: 4,
+  },
+  distanceText: {
+    fontSize: RFValue(24),
+    fontFamily: "AvenirNext-Regular",
+    color: "#FF6B00",
+    textAlign: "center",
+    fontWeight: "bold",
+    marginTop: screenHeight * 0.025,
   },
 });

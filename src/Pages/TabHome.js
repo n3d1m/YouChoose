@@ -269,6 +269,8 @@ export default class TabHome extends React.Component {
       case "Price Range":
         this.setState({ priceRange: value });
         break;
+      case "Distance":
+        this.setState({ distance: value });
     }
     this._filterPanel.hide();
     this.setState({ filterSelected: false });
