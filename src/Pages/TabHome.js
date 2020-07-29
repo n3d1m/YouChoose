@@ -62,6 +62,8 @@ export default class TabHome extends React.Component {
       latLong: null,
       spinner: true,
       randomSelection: false,
+      filteredSelection: false,
+      filterError: false,
       popover: false,
       placeData: null,
       error: false,
@@ -73,6 +75,7 @@ export default class TabHome extends React.Component {
       rating: null,
       filterSelected: false,
       filterType: null,
+      selectionType: "",
     };
   }
 
@@ -160,7 +163,81 @@ export default class TabHome extends React.Component {
         placeData: placeData,
         bottomMenu: true,
         filterSelected: false,
+        selectionType: "Random",
       });
+    }
+  };
+
+  filteredSelection = async () => {
+    if (
+      this.state.category == null &&
+      this.state.priceRange == null &&
+      this.state.distance == null &&
+      this.state.rating == null
+    ) {
+      this.setState({ filterError: true });
+    } else {
+      this.setState({
+        filteredSelection: true,
+        popover: false,
+        logo: null,
+        bottomMenu: false,
+        filterError: false,
+      });
+      const authData = contactReducer(null, "GET_AUTH")["payload"];
+
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authData["access_token"]}`,
+      };
+
+      const data = {
+        lat: this.state.latLong["latitude"],
+        long: this.state.latLong["longitude"],
+        category: this.state.category,
+        price_range: this.state.priceRange,
+        distance: this.state.distance,
+        rating: this.state.rating,
+        city: this.state.currentLocation,
+      };
+
+      const res = axios.post(
+        this.state.currentApi + "/filtered_selection",
+        data,
+        {
+          headers: headers,
+        }
+      );
+
+      const response = await res;
+
+      console.log(response.data);
+
+      if (response.data.ok != undefined) {
+        const returnStatement = response.data.data;
+
+        let error = false;
+        let placeData = null;
+
+        if (response.data.ok == true) {
+          console.log(returnStatement);
+          placeData = returnStatement;
+        } else {
+          error = true;
+        }
+        this.getLogo(placeData["logo_url"]);
+        contactReducer(placeData, "UPDATE_PLACE_DATA");
+
+        this.setState({
+          filteredSelection: false,
+          error: error,
+          popover: true,
+          placeData: placeData,
+          bottomMenu: true,
+          filterSelected: false,
+          selectionType: "Filtered",
+        });
+      }
     }
   };
 
@@ -271,9 +348,13 @@ export default class TabHome extends React.Component {
         break;
       case "Distance":
         this.setState({ distance: value });
+        break;
+      case "Rating":
+        this.setState({ rating: value });
+        break;
     }
     this._filterPanel.hide();
-    this.setState({ filterSelected: false });
+    this.setState({ filterSelected: false, filterError: false });
   };
 
   topBar = () => {
@@ -357,11 +438,28 @@ export default class TabHome extends React.Component {
         );
       case "Rating":
         let rating = this.state.rating != null ? this.state.rating : name;
-        return (
-          <Text style={[styles.row2Text, { fontSize: RFValue(8) }]}>
-            {rating}
-          </Text>
-        );
+
+        console.log(rating);
+
+        if (this.state.rating == null) {
+          return (
+            <Text style={[styles.row2Text, { fontSize: RFValue(8) }]}>
+              {rating}
+            </Text>
+          );
+        } else {
+          return (
+            <Rating
+              ratingColor="#FF6B00"
+              tintColor="#fff"
+              type="custom"
+              imageSize={RFValue(8)}
+              startingValue={rating}
+              ratingCount={rating}
+              readonly={true}
+            />
+          );
+        }
     }
   };
 
@@ -451,7 +549,11 @@ export default class TabHome extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.smallButton}
-            onPress={() => this.randomSelection()}
+            onPress={() =>
+              this.state.selectionType == "Random"
+                ? this.randomSelection()
+                : this.filteredSelection()
+            }
           >
             <Text style={styles.smallButtonText}>Try Again</Text>
           </TouchableOpacity>
@@ -467,9 +569,11 @@ export default class TabHome extends React.Component {
         <View style={styles.mainCol}>
           {this.state.spinner ? (
             <ActivityIndicator size="large" color="white" />
-          ) : this.state.randomSelection ? (
+          ) : this.state.randomSelection || this.state.filteredSelection ? (
             <AnimatedLoader
-              visible={this.state.randomSelection}
+              visible={
+                this.state.randomSelection || this.state.filteredSelection
+              }
               overlayColor="rgba(255,255,255,0)"
               source={require("../Animations/load.json")}
               animationStyle={styles.customSpinner}
@@ -479,9 +583,20 @@ export default class TabHome extends React.Component {
             this.popover()
           ) : (
             <View style={styles.mainCol}>
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Filtered Selection</Text>
-              </TouchableOpacity>
+              <View style={styles.filterContainer}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => this.filteredSelection()}
+                >
+                  <Text style={styles.buttonText}>Filtered Selection</Text>
+                </TouchableOpacity>
+                {this.state.filterError && (
+                  <Text style={styles.errorText}>
+                    You must select at least 1 filter
+                  </Text>
+                )}
+              </View>
+
               <View style={{ marginTop: screenHeight * 0.05 }} />
               <TouchableOpacity
                 style={styles.button}
@@ -726,5 +841,21 @@ const styles = StyleSheet.create({
     color: "#002A57",
     marginLeft: 5,
     marginTop: 5,
+  },
+  errorText: {
+    fontSize: RFValue(12),
+    fontFamily: "AvenirNext-Regular",
+    color: "red",
+    textAlign: "center",
+    position: "absolute",
+    marginTop: screenHeight * 0.08,
+    zIndex: 10,
+  },
+  filterContainer: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "column",
+    position: "relative",
+    width: screenWidth,
   },
 });

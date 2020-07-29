@@ -141,10 +141,8 @@ export default class Filters extends React.Component {
   priceRange = () => {
     const prices = ["$", "$$", "$$$", "$$$$"];
     return (
-      <View style={styles.filterCol}>
-        <Text style={styles.titleText} {...this.state.dragHandler}>
-          {this.state.filterType}
-        </Text>
+      <View style={styles.filterCol} {...this.state.dragHandler}>
+        <Text style={styles.titleText}>{this.state.filterType}</Text>
         <View style={[styles.photoCol, { marginTop: screenHeight * 0.04 }]}>
           {prices.map((val, idx) => {
             return (
@@ -193,10 +191,8 @@ export default class Filters extends React.Component {
     ];
 
     return (
-      <View style={styles.filterCol}>
-        <Text style={styles.titleText} {...this.state.dragHandler}>
-          {this.state.filterType}
-        </Text>
+      <View style={styles.filterCol} {...this.state.dragHandler}>
+        <Text style={styles.titleText}>{this.state.filterType}</Text>
         {this.distanceText("render")}
         <View style={styles.slideContainer}>
           <View style={styles.markerContainer}>
@@ -245,6 +241,52 @@ export default class Filters extends React.Component {
     );
   };
 
+  rating = () => {
+    const ratings = [1, 2, 3, 4, 5];
+    return (
+      <View style={styles.filterCol} {...this.state.dragHandler}>
+        <Text style={styles.titleText}>{this.state.filterType}</Text>
+        <View style={[styles.photoCol, { marginTop: screenHeight * 0.04 }]}>
+          <TouchableOpacity
+            style={styles.iconContainer}
+            onPress={() => this.props.filterValue(this.state.filterType, null)}
+          >
+            <AntDesign
+              name="close"
+              size={RFPercentage(14)}
+              style={{ marginTop: 0, opacity: 0.5 }}
+              color="red"
+            />
+            <View style={styles.centerView}>
+              <Text style={styles.imageText}>None</Text>
+            </View>
+          </TouchableOpacity>
+          {ratings.map((val, idx) => {
+            return (
+              <TouchableOpacity
+                style={[styles.iconContainer]}
+                key={idx}
+                onPress={() =>
+                  this.props.filterValue(this.state.filterType, val)
+                }
+              >
+                <Rating
+                  ratingColor="#002A57"
+                  tintColor="#fff"
+                  type="custom"
+                  imageSize={RFValue(24)}
+                  startingValue={val}
+                  ratingCount={val}
+                  readonly={true}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
+
   filterRender() {
     switch (this.state.filterType) {
       case null:
@@ -258,6 +300,9 @@ export default class Filters extends React.Component {
 
       case "Distance":
         return this.distance();
+
+      case "Rating":
+        return this.rating();
     }
   }
 
