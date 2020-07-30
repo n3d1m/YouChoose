@@ -71,6 +71,7 @@ export default class TabHome extends React.Component {
       bottomMenu: false,
       category: null,
       priceRange: null,
+      priceArr: [],
       distance: null,
       rating: null,
       filterSelected: false,
@@ -116,7 +117,7 @@ export default class TabHome extends React.Component {
       bottomMenu: false,
     });
     const authData = contactReducer(null, "GET_AUTH")["payload"];
-    console.log(authData);
+    //console.log(authData);
 
     const headers = {
       "Content-Type": "application/json",
@@ -148,7 +149,6 @@ export default class TabHome extends React.Component {
       let placeData = null;
 
       if (response.data.ok == true) {
-        console.log(returnStatement);
         placeData = returnStatement;
       } else {
         error = true;
@@ -211,8 +211,6 @@ export default class TabHome extends React.Component {
 
       const response = await res;
 
-      console.log(response.data);
-
       if (response.data.ok != undefined) {
         const returnStatement = response.data.data;
 
@@ -220,12 +218,12 @@ export default class TabHome extends React.Component {
         let placeData = null;
 
         if (response.data.ok == true) {
-          console.log(returnStatement);
           placeData = returnStatement;
+          console.log(placeData);
         } else {
           error = true;
         }
-        this.getLogo(placeData["logo_url"]);
+        placeData != null && this.getLogo(placeData["logo_url"]);
         contactReducer(placeData, "UPDATE_PLACE_DATA");
 
         this.setState({
@@ -258,11 +256,9 @@ export default class TabHome extends React.Component {
   }
 
   getLogo = (logo) => {
-    console.log(logo);
     axios
       .get(`https://logo.clearbit.com/${logo}?size=100`)
       .then((response) => {
-        console.log("response: " + response["request"]["responseURL"]);
         this.setState({ logo: response["request"]["responseURL"] });
       })
       .catch((e) => this.setState({ logo: null }));
@@ -291,7 +287,8 @@ export default class TabHome extends React.Component {
 
     if (
       this.state.placeData["opening_hours"]["open_now"] == true &&
-      0 < currentHour < 6
+      currentHour > 0 &&
+      currentHour < 6
     ) {
       day -= 1;
       if (day < 0) {
@@ -299,14 +296,10 @@ export default class TabHome extends React.Component {
       }
     }
 
-    console.log(day);
-
     let todaysHours = this.state.placeData["opening_hours"]["hours"][day];
     let hours = todaysHours.split(":");
     hours.shift();
     hours = hours.join(":").split("–");
-
-    console.log(hours);
 
     if (type == "close") {
       return <Text style={styles.openCloseText}>(Closes at{hours[1]})</Text>;
@@ -327,7 +320,7 @@ export default class TabHome extends React.Component {
       android: "geo:0,0?q=",
     });
     let url = scheme + `${latLong["lat"]},${latLong["lng"]}`;
-    console.log(url);
+
     Linking.openURL(url);
   };
 
@@ -344,7 +337,10 @@ export default class TabHome extends React.Component {
         this.setState({ category: value });
         break;
       case "Price Range":
-        this.setState({ priceRange: value });
+        this.setState({
+          priceRange: value,
+          priceArr: value != null ? value.split(", ") : [],
+        });
         break;
       case "Distance":
         this.setState({ distance: value });
@@ -355,6 +351,16 @@ export default class TabHome extends React.Component {
     }
     this._filterPanel.hide();
     this.setState({ filterSelected: false, filterError: false });
+  };
+
+  priceSelect = (val) => {
+    if (this.state.priceArr.includes(val)) {
+      this.state.priceArr = this.state.priceArr.filter((item) => item !== val);
+    } else {
+      this.state.priceArr.push(val);
+    }
+
+    this.setState({ priceArr: this.state.priceArr });
   };
 
   topBar = () => {
@@ -418,7 +424,7 @@ export default class TabHome extends React.Component {
       case "Price Range":
         let priceRange =
           this.state.priceRange != null ? this.state.priceRange : name;
-        console.log("display: " + priceRange);
+
         return (
           <Text
             style={[
@@ -438,8 +444,6 @@ export default class TabHome extends React.Component {
         );
       case "Rating":
         let rating = this.state.rating != null ? this.state.rating : name;
-
-        console.log(rating);
 
         if (this.state.rating == null) {
           return (
@@ -463,19 +467,9 @@ export default class TabHome extends React.Component {
     }
   };
 
-  popover = () => {
-    //console.log(this.state.placeData);
-    const priceMap = {
-      1: "$",
-      2: "$$",
-      3: "$$$",
-      4: "$$$$",
-      5: "$$$$$",
-    };
-
+  noResults = () => {
     return (
       <View style={styles.popover}>
-        {console.log(this.state.logo)}
         <View style={styles.popoverHeaderRow}>
           <View style={{ width: RFValue(15) }} />
           <Text style={styles.popoverText}>Your Selection:</Text>
@@ -487,79 +481,124 @@ export default class TabHome extends React.Component {
             onPress={() => this.setState({ popover: false, bottomMenu: false })}
           />
         </View>
-        <View style={styles.contentRow}>
-          <Image
-            source={{
-              uri:
-                this.state.logo == null
-                  ? this.state.placeData["image_url"]
-                  : this.state.logo,
-            }}
-            //source={{ uri: "https://logo.clearbit.com/spotify.com" }}
-            //source={{ uri: this.state.placeData["image_url"] }}
-            style={styles.image}
-          />
-          <View style={styles.contentCol}>
-            <Text style={styles.contentText}>
-              {this.state.placeData["name"]}
-            </Text>
-            <TouchableOpacity onPress={() => this.openMaps()}>
-              <Text style={styles.contentText}>
-                {this.state.placeData["address"]}
-              </Text>
-            </TouchableOpacity>
-
-            <View style={styles.infoRow}>
-              <Rating
-                ratingColor="#FF6B00"
-                type="custom"
-                imageSize={RFValue(10)}
-                startingValue={this.state.placeData["rating"]}
-                readonly={true}
-              />
-              <Text style={styles.infoText}>
-                |{"  "}
-                {priceMap[this.state.placeData["price_level"]]}
-                {"  "}|{"  "}
-                {this.getDistance(
-                  this.state.placeData["geometry"]["location"]
-                )}{" "}
-                km away
-              </Text>
-            </View>
-            {this.state.placeData["opening_hours"]["open_now"] ? (
-              <View style={styles.openCloseRow}>
-                <Text style={styles.openText}>Open</Text>
-                {this.openCloseTime("close")}
-              </View>
-            ) : (
-              <View style={styles.openCloseRow}>
-                <Text style={styles.closedText}>Closed</Text>
-                {this.openCloseTime("open")}
-              </View>
-            )}
-          </View>
-        </View>
-        <View style={styles.buttonRow}>
+        <View style={styles.noResultCol}>
+          <Text style={styles.noResultText}>
+            Your filter selections returned no results.
+          </Text>
           <TouchableOpacity
             style={styles.smallButton}
-            onPress={() => this._panel.show()}
+            onPress={() => this.setState({ popover: false, bottomMenu: false })}
           >
-            <Text style={styles.smallButtonText}>More Details</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.smallButton}
-            onPress={() =>
-              this.state.selectionType == "Random"
-                ? this.randomSelection()
-                : this.filteredSelection()
-            }
-          >
-            <Text style={styles.smallButtonText}>Try Again</Text>
+            <Text style={styles.smallButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
+  };
+
+  popover = () => {
+    console.log(this.state.placeData);
+    const priceMap = {
+      1: "$",
+      2: "$$",
+      3: "$$$",
+      4: "$$$$",
+      5: "$$$$$",
+    };
+
+    if (this.state.placeData != null) {
+      return (
+        <View style={styles.popover}>
+          <View style={styles.popoverHeaderRow}>
+            <View style={{ width: RFValue(15) }} />
+            <Text style={styles.popoverText}>Your Selection:</Text>
+            <AntDesign
+              name="close"
+              color="#002A57"
+              size={RFValue(15)}
+              style={{ marginLeft: -10, marginTop: -5 }}
+              onPress={() =>
+                this.setState({ popover: false, bottomMenu: false })
+              }
+            />
+          </View>
+          <View style={styles.contentRow}>
+            <Image
+              source={{
+                uri:
+                  this.state.logo == null
+                    ? this.state.placeData["image_url"]
+                    : this.state.logo,
+              }}
+              //source={{ uri: "https://logo.clearbit.com/spotify.com" }}
+              //source={{ uri: this.state.placeData["image_url"] }}
+              style={styles.image}
+            />
+            <View style={styles.contentCol}>
+              <Text style={styles.contentText}>
+                {this.state.placeData["name"]}
+              </Text>
+              <TouchableOpacity onPress={() => this.openMaps()}>
+                <Text style={styles.contentText}>
+                  {this.state.placeData["address"]}
+                </Text>
+              </TouchableOpacity>
+
+              <View style={styles.infoRow}>
+                <Rating
+                  ratingColor="#FF6B00"
+                  type="custom"
+                  imageSize={RFValue(10)}
+                  startingValue={this.state.placeData["rating"]}
+                  readonly={true}
+                />
+                <Text style={styles.infoText}>
+                  |{"  "}
+                  {priceMap[this.state.placeData["price_level"]]}
+                  {"  "}|{"  "}
+                  {this.getDistance(
+                    this.state.placeData["geometry"]["location"]
+                  )}{" "}
+                  km away
+                </Text>
+              </View>
+              {this.state.placeData["opening_hours"] == null ? null : this.state
+                  .placeData["opening_hours"]["open_now"] ? (
+                <View style={styles.openCloseRow}>
+                  <Text style={styles.openText}>Open</Text>
+                  {this.openCloseTime("close")}
+                </View>
+              ) : (
+                <View style={styles.openCloseRow}>
+                  <Text style={styles.closedText}>Closed</Text>
+                  {this.openCloseTime("open")}
+                </View>
+              )}
+            </View>
+          </View>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.smallButton}
+              onPress={() => this._panel.show()}
+            >
+              <Text style={styles.smallButtonText}>More Details</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.smallButton}
+              onPress={() =>
+                this.state.selectionType == "Random"
+                  ? this.randomSelection()
+                  : this.filteredSelection()
+              }
+            >
+              <Text style={styles.smallButtonText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    } else {
+      return this.noResults();
+    }
   };
 
   render() {
@@ -622,7 +661,6 @@ export default class TabHome extends React.Component {
 
         {/* create another sliding panel component that doesn't need to be conditionally rendered and call it from
         getFilter */}
-        {console.log(this.state.filterType)}
 
         {!this.state.bottomMenu && (
           <SlidingUpPanel
@@ -640,6 +678,8 @@ export default class TabHome extends React.Component {
                 filterType={this.state.filterType}
                 filterValue={this.filterValue}
                 priceRange={this.state.priceRange}
+                priceArr={this.state.priceArr}
+                priceSelect={this.priceSelect}
               />
             )}
           </SlidingUpPanel>
@@ -744,6 +784,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "flex-start",
     alignItems: "center",
+    position: "relative",
   },
   popoverText: {
     fontSize: RFValue(16),
@@ -777,6 +818,13 @@ const styles = StyleSheet.create({
     width: screenWidth * 0.45,
     marginLeft: 10,
     marginTop: -5,
+  },
+  noResultCol: {
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    flexDirection: "column",
+    width: "100%",
+    height: "100%",
   },
   contentText: {
     fontSize: RFValue(10),
@@ -857,5 +905,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     position: "relative",
     width: screenWidth,
+  },
+  noResultText: {
+    fontSize: RFValue(16),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
   },
 });

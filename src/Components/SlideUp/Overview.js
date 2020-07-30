@@ -38,8 +38,9 @@ export default class Overview extends React.Component {
     //console.log("i am being called");
 
     const placeData = contactReducer(null, "GET_PLACE_DATA");
-    this.getLogo(placeData["logo_url"]);
-    this.overflowCheck(placeData);
+
+    placeData != null && this.getLogo(placeData["logo_url"]);
+    placeData != null && this.overflowCheck(placeData);
 
     this.setState({
       placeData: placeData,
@@ -141,15 +142,18 @@ export default class Overview extends React.Component {
   };
 
   overflowCheck = (obj) => {
-    let dataArr = obj["opening_hours"]["hours"];
     let breakCondition = false;
 
-    for (let i in dataArr) {
-      let splitLength = dataArr[i].split(",").length;
+    if (obj["opening_hours"] != null) {
+      let dataArr = obj["opening_hours"]["hours"];
 
-      if (splitLength > 1) {
-        breakCondition = true;
-        break;
+      for (let i in dataArr) {
+        let splitLength = dataArr[i].split(",").length;
+
+        if (splitLength > 1) {
+          breakCondition = true;
+          break;
+        }
       }
     }
 
@@ -206,149 +210,160 @@ export default class Overview extends React.Component {
     //console.log(this.state.placeData);
     //console.log(this.state.dragHandler);
 
-    return (
-      <View style={styles.container}>
-        {this.state.placeData != null && (
-          <View style={styles.contentContainer}>
-            <View style={styles.contentRow} {...this.state.dragHandler}>
-              <Image
-                source={{
-                  uri:
-                    this.state.logo == null
-                      ? this.state.placeData["image_url"]
-                      : this.state.logo,
-                }}
-                //source={{ uri: "https://logo.clearbit.com/spotify.com" }}
-                //source={{ uri: this.state.placeData["image_url"] }}
-                style={styles.image}
-              />
-              <View style={styles.contentCol}>
-                <Text style={styles.contentText}>
-                  {this.state.placeData["name"]}
-                </Text>
-                <TouchableOpacity onPress={() => this.openMaps()}>
+    if (this.state.placeData != null) {
+      return (
+        <View style={styles.container}>
+          {this.state.placeData != null && (
+            <View style={styles.contentContainer}>
+              <View style={styles.contentRow} {...this.state.dragHandler}>
+                <Image
+                  source={{
+                    uri:
+                      this.state.logo == null
+                        ? this.state.placeData["image_url"]
+                        : this.state.logo,
+                  }}
+                  //source={{ uri: "https://logo.clearbit.com/spotify.com" }}
+                  //source={{ uri: this.state.placeData["image_url"] }}
+                  style={styles.image}
+                />
+                <View style={styles.contentCol}>
                   <Text style={styles.contentText}>
-                    {this.state.placeData["address"]}
+                    {this.state.placeData["name"]}
                   </Text>
-                </TouchableOpacity>
-
-                <View style={styles.infoRow}>
-                  <Rating
-                    ratingColor="#FF6B00"
-                    type="custom"
-                    imageSize={RFValue(10)}
-                    startingValue={this.state.placeData["rating"]}
-                    readonly={true}
-                  />
-                  <Text style={styles.infoText}>
-                    |{"  "}
-                    {priceMap[this.state.placeData["price_level"]]}
-                    {"  "}|{"  "}
-                    {this.getDistance(
-                      this.state.placeData["geometry"]["location"]
-                    )}{" "}
-                    km away
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() =>
-                    this.callNumber(this.state.placeData["phone_number"])
-                  }
-                >
-                  <Text style={styles.phoneText}>
-                    {this.state.placeData["phone_number"]}
-                  </Text>
-                </TouchableOpacity>
-
-                {this.state.placeData["opening_hours"]["open_now"] ? (
-                  <View style={styles.openCloseRow}>
-                    <Text style={styles.openText}>Open</Text>
-                    {this.openCloseTime("close")}
-                  </View>
-                ) : (
-                  <View style={styles.openCloseRow}>
-                    <Text style={styles.closedText}>Closed</Text>
-                    {this.openCloseTime("open")}
-                  </View>
-                )}
-              </View>
-            </View>
-            <View style={styles.lowerRow}>
-              <View style={styles.box1}>
-                <Text style={styles.hoursText}>Hours</Text>
-                <ScrollView
-                  contentContainerStyle={
-                    ([styles.hoursCol],
-                    {
-                      height: this.state.overflow ? screenHeight * 0.52 : "50%",
-                      marginTop: 25,
-                    })
-                  }
-                  scrollEnabled={this.state.overflow}
-                >
-                  {this.state.placeData["opening_hours"]["hours"].map(
-                    (val, idx) => {
-                      let day = val.split(":");
-                      let hours = val.split(":");
-                      hours.shift();
-                      hours = hours.join(":");
-
-                      return (
-                        <View
-                          style={{
-                            justifyContent: "flex-start",
-                            alignItems: "center",
-                            flexDirection: "row",
-                            width: "100%",
-                            flexWrap: "wrap",
-                          }}
-                          key={idx}
-                        >
-                          <Text
-                            style={[
-                              {
-                                color: this.getCurrentDay(day[0])
-                                  ? "#FF6B00"
-                                  : "#002A57",
-                              },
-                              styles.hoursHeader,
-                            ]}
-                          >
-                            {day[0]}:
-                          </Text>
-                          <Text style={styles.hoursSubText}>{hours}</Text>
-                        </View>
-                      );
-                      //   return <Text key={idx}>{val}</Text>;
-                    }
-                  )}
-                </ScrollView>
-              </View>
-              <View style={styles.box2}>
-                <Text style={styles.hoursText}>Delivery Options</Text>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={styles.eatsContainer}
-                    onPress={() => this.eatsDeeplink()}
-                  >
-                    <Image source={uberEatsLogo} style={styles.eats} />
+                  <TouchableOpacity onPress={() => this.openMaps()}>
+                    <Text style={styles.contentText}>
+                      {this.state.placeData["address"]}
+                    </Text>
                   </TouchableOpacity>
-                  <View style={{ marginTop: screenHeight * 0.025 }} />
-                  {this.state.placeData["full_website"] != null && (
+
+                  <View style={styles.infoRow}>
+                    <Rating
+                      ratingColor="#FF6B00"
+                      type="custom"
+                      imageSize={RFValue(10)}
+                      startingValue={this.state.placeData["rating"]}
+                      readonly={true}
+                    />
+                    <Text style={styles.infoText}>
+                      |{"  "}
+                      {priceMap[this.state.placeData["price_level"]]}
+                      {"  "}|{"  "}
+                      {this.getDistance(
+                        this.state.placeData["geometry"]["location"]
+                      )}{" "}
+                      km away
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() =>
+                      this.callNumber(this.state.placeData["phone_number"])
+                    }
+                  >
+                    <Text style={styles.phoneText}>
+                      {this.state.placeData["phone_number"]}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {this.state.placeData["opening_hours"] == null ? null : this
+                      .state.placeData["opening_hours"]["open_now"] ? (
+                    <View style={styles.openCloseRow}>
+                      <Text style={styles.openText}>Open</Text>
+                      {this.openCloseTime("close")}
+                    </View>
+                  ) : (
+                    <View style={styles.openCloseRow}>
+                      <Text style={styles.closedText}>Closed</Text>
+                      {this.openCloseTime("open")}
+                    </View>
+                  )}
+                </View>
+              </View>
+              <View style={styles.lowerRow}>
+                <View style={styles.box1}>
+                  <Text style={styles.hoursText}>Hours</Text>
+                  <ScrollView
+                    contentContainerStyle={
+                      ([styles.hoursCol],
+                      {
+                        height: this.state.overflow
+                          ? screenHeight * 0.52
+                          : "50%",
+                        marginTop: 25,
+                      })
+                    }
+                    scrollEnabled={this.state.overflow}
+                  >
+                    {this.state.placeData["opening_hours"] == null ? (
+                      <Text style={styles.noHoursText}>No hours avaliable</Text>
+                    ) : (
+                      this.state.placeData["opening_hours"]["hours"].map(
+                        (val, idx) => {
+                          let day = val.split(":");
+                          let hours = val.split(":");
+                          hours.shift();
+                          hours = hours.join(":");
+
+                          return (
+                            <View
+                              style={{
+                                justifyContent: "flex-start",
+                                alignItems: "center",
+                                flexDirection: "row",
+                                width: "100%",
+                                flexWrap: "wrap",
+                              }}
+                              key={idx}
+                            >
+                              <Text
+                                style={[
+                                  {
+                                    color: this.getCurrentDay(day[0])
+                                      ? "#FF6B00"
+                                      : "#002A57",
+                                  },
+                                  styles.hoursHeader,
+                                ]}
+                              >
+                                {day[0]}:
+                              </Text>
+                              <Text style={styles.hoursSubText}>{hours}</Text>
+                            </View>
+                          );
+                          //   return <Text key={idx}>{val}</Text>;
+                        }
+                      )
+                    )}
+                  </ScrollView>
+                </View>
+                <View style={styles.box2}>
+                  <Text style={styles.hoursText}>Delivery Options</Text>
+                  <View style={styles.buttonContainer}>
                     <TouchableOpacity
                       style={styles.eatsContainer}
-                      onPress={() => this.webDeepLink()}
+                      onPress={() => this.eatsDeeplink()}
                     >
-                      <Text style={styles.buttonText}>Website</Text>
+                      <Image source={uberEatsLogo} style={styles.eats} />
                     </TouchableOpacity>
-                  )}
+                    <View style={{ marginTop: screenHeight * 0.025 }} />
+                    {this.state.placeData["full_website"] != null && (
+                      <TouchableOpacity
+                        style={styles.eatsContainer}
+                        onPress={() => this.webDeepLink()}
+                      >
+                        <Text style={styles.buttonText}>Website</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
-        )}
-      </View>
-    );
+          )}
+        </View>
+      );
+    } else {
+      return null;
+    }
   }
 }
 
@@ -459,6 +474,11 @@ const styles = StyleSheet.create({
     fontFamily: "AvenirNext-Regular",
     color: "#002A57",
     marginTop: 10,
+  },
+  noHoursText: {
+    fontSize: RFValue(12),
+    fontFamily: "AvenirNext-Regular",
+    color: "#002A57",
   },
   openText: {
     fontSize: RFValue(10),

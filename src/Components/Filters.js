@@ -25,7 +25,7 @@ export default class Filters extends React.Component {
       dragHandler: props.dragHandler,
       filterType: props.filterType,
       priceRange: props.priceRange,
-      priceArr: null,
+      priceArr: props.priceArr,
       distanceVal: 1,
     };
   }
@@ -43,14 +43,21 @@ export default class Filters extends React.Component {
       };
     }
 
+    if (props.priceArr !== state.priceArr) {
+      return {
+        priceArr: props.priceArr,
+      };
+    }
+
     return null;
   }
 
-  componentDidMount() {
-    if (this.state.priceRange == null) {
-      this.state.priceArr = [];
-    }
-  }
+  // componentDidMount() {
+  //   console.log("MOUNTTTT");
+  //   if (this.state.priceRange == null) {
+  //     this.state.priceArr = [];
+  //   }
+  // }
 
   priceDeconstruct = () => {
     if (this.state.priceArr.length == 0) {
@@ -58,16 +65,6 @@ export default class Filters extends React.Component {
     } else {
       return this.state.priceArr.join(", ");
     }
-  };
-
-  priceSelect = (val) => {
-    if (this.state.priceArr.includes(val)) {
-      this.state.priceArr = this.state.priceArr.filter((item) => item !== val);
-    } else {
-      this.state.priceArr.push(val);
-    }
-
-    this.setState({ priceArr: this.state.priceArr });
   };
 
   distanceText = (usage) => {
@@ -140,6 +137,8 @@ export default class Filters extends React.Component {
 
   priceRange = () => {
     const prices = ["$", "$$", "$$$", "$$$$"];
+
+    // console.log("price range called", this.state.priceRange.split());
     return (
       <View style={styles.filterCol} {...this.state.dragHandler}>
         <Text style={styles.titleText}>{this.state.filterType}</Text>
@@ -158,7 +157,7 @@ export default class Filters extends React.Component {
                   },
                 ]}
                 key={idx}
-                onPress={() => this.priceSelect(val)}
+                onPress={() => this.props.priceSelect(val)}
               >
                 <Text style={styles.priceText}>{val}</Text>
               </TouchableOpacity>

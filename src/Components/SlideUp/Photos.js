@@ -26,26 +26,30 @@ export default class Photos extends React.Component {
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        {this.state.placeData != null && (
-          <ScrollView contentContainerStyle={styles.photoCol}>
-            {this.state.placeData["photo_array"].map((val, idx) => {
-              return (
-                <View style={styles.imageContainer} key={idx}>
-                  <Image
-                    source={{
-                      uri: val,
-                    }}
-                    style={styles.image}
-                  />
-                </View>
-              );
-            })}
-          </ScrollView>
-        )}
-      </View>
-    );
+    if (this.state.placeData != null) {
+      return (
+        <View style={styles.container}>
+          {this.state.placeData != null && (
+            <ScrollView contentContainerStyle={styles.photoCol}>
+              {this.state.placeData["photo_array"].map((val, idx) => {
+                return (
+                  <View style={styles.imageContainer} key={idx}>
+                    <Image
+                      source={{
+                        uri: val,
+                      }}
+                      style={styles.image}
+                    />
+                  </View>
+                );
+              })}
+            </ScrollView>
+          )}
+        </View>
+      );
+    } else {
+      return null;
+    }
   }
 }
 

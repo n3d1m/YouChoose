@@ -20,61 +20,63 @@ export default class Reviews extends React.Component {
   componentDidMount() {
     const placeData = contactReducer(null, "GET_PLACE_DATA");
 
-    console.log("review: " + placeData["reviews"][0]);
-
     this.setState({
       placeData: placeData,
     });
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        {this.state.placeData != null && (
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
-            {this.state.placeData["reviews"].map((val, idx) => {
-              return (
-                <View
-                  style={[
-                    styles.scrollContainer,
-                    idx < this.state.placeData["reviews"].length - 1 &&
-                      styles.scrollBorder,
-                  ]}
-                  key={idx}
-                >
-                  <View style={styles.topSection}>
-                    <Image
-                      source={{
-                        uri: val["profile_photo_url"],
-                      }}
-                      style={styles.image}
-                    />
-                    <View style={styles.textCol}>
-                      <Text style={styles.topText}>{val["author_name"]}</Text>
-                      <View style={styles.ratingRow}>
-                        <Rating
-                          ratingColor="#FF6B00"
-                          type="custom"
-                          imageSize={RFValue(10)}
-                          startingValue={val["rating"]}
-                          readonly={true}
-                        />
-                        <Text style={styles.ratingText}>
-                          ({val["relative_time_description"]})
-                        </Text>
+    if (this.state.placeData != null) {
+      return (
+        <View style={styles.container}>
+          {this.state.placeData != null && (
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+              {this.state.placeData["reviews"].map((val, idx) => {
+                return (
+                  <View
+                    style={[
+                      styles.scrollContainer,
+                      idx < this.state.placeData["reviews"].length - 1 &&
+                        styles.scrollBorder,
+                    ]}
+                    key={idx}
+                  >
+                    <View style={styles.topSection}>
+                      <Image
+                        source={{
+                          uri: val["profile_photo_url"],
+                        }}
+                        style={styles.image}
+                      />
+                      <View style={styles.textCol}>
+                        <Text style={styles.topText}>{val["author_name"]}</Text>
+                        <View style={styles.ratingRow}>
+                          <Rating
+                            ratingColor="#FF6B00"
+                            type="custom"
+                            imageSize={RFValue(10)}
+                            startingValue={val["rating"]}
+                            readonly={true}
+                          />
+                          <Text style={styles.ratingText}>
+                            ({val["relative_time_description"]})
+                          </Text>
+                        </View>
                       </View>
                     </View>
+                    <View style={styles.ratingSection}>
+                      <Text style={styles.descriptionText}>{val["text"]}</Text>
+                    </View>
                   </View>
-                  <View style={styles.ratingSection}>
-                    <Text style={styles.descriptionText}>{val["text"]}</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </ScrollView>
-        )}
-      </View>
-    );
+                );
+              })}
+            </ScrollView>
+          )}
+        </View>
+      );
+    } else {
+      return null;
+    }
   }
 }
 
